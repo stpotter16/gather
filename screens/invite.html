@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gather — Invite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-100 min-h-screen">
+
+  <!-- Dimmed page behind the modal -->
+  <div class="fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-24 px-4 z-10">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-stone-900">Invite people</h2>
+          <p class="text-xs text-stone-400 mt-0.5">Summer Reunion 2026</p>
+        </div>
+        <a href="event.html" class="text-stone-400 hover:text-stone-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </a>
+      </div>
+
+      <!-- Search -->
+      <div class="px-6 pt-5 pb-3">
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+          <input
+            type="text"
+            placeholder="Search by name…"
+            class="w-full pl-9 pr-4 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+            autofocus
+          />
+        </div>
+      </div>
+
+      <!-- Search results / suggestions -->
+      <div class="px-6 pb-2">
+        <p class="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">Suggestions</p>
+        <div class="space-y-1">
+
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors text-left">
+            <div class="w-8 h-8 rounded-full bg-violet-400 flex items-center justify-center text-white text-sm font-semibold shrink-0">T</div>
+            <span class="flex-1 text-sm font-medium text-stone-800">Tom Potter</span>
+            <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          </button>
+
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors text-left">
+            <div class="w-8 h-8 rounded-full bg-orange-300 flex items-center justify-center text-white text-sm font-semibold shrink-0">J</div>
+            <span class="flex-1 text-sm font-medium text-stone-800">Jake Potter</span>
+            <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          </button>
+
+          <button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors text-left">
+            <div class="w-8 h-8 rounded-full bg-pink-400 flex items-center justify-center text-white text-sm font-semibold shrink-0">A</div>
+            <span class="flex-1 text-sm font-medium text-stone-800">Anna Potter</span>
+            <svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          </button>
+
+        </div>
+      </div>
+
+      <hr class="border-stone-100 mx-6" />
+
+      <!-- Already invited -->
+      <div class="px-6 pt-3 pb-2">
+        <p class="text-xs font-semibold text-stone-400 uppercase tracking-wide mb-2">Already invited</p>
+        <div class="space-y-1">
+
+          <div class="flex items-center gap-3 px-3 py-2">
+            <div class="w-8 h-8 rounded-full bg-rose-400 flex items-center justify-center text-white text-sm font-semibold shrink-0">M</div>
+            <span class="flex-1 text-sm font-medium text-stone-800">Mary Potter</span>
+            <span class="text-xs text-emerald-600 font-medium">Going</span>
+          </div>
+
+          <div class="flex items-center gap-3 px-3 py-2">
+            <div class="w-8 h-8 rounded-full bg-teal-400 flex items-center justify-center text-white text-sm font-semibold shrink-0">L</div>
+            <span class="flex-1 text-sm font-medium text-stone-800">Linda Nguyen</span>
+            <span class="text-xs text-stone-400">Pending</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex justify-end">
+        <button class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">
+          Send invites
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

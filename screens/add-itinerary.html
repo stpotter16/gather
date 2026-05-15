@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gather — Add Itinerary</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-100 min-h-screen">
+
+  <!-- Dimmed page behind modal -->
+  <div class="fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-16 px-4 z-10">
+
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+      <!-- Header -->
+      <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+        <div>
+          <h2 class="text-base font-semibold text-stone-900">Your itinerary</h2>
+          <p class="text-xs text-stone-400 mt-0.5">Summer Reunion 2026</p>
+        </div>
+        <a href="event.html" class="text-stone-400 hover:text-stone-600">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </a>
+      </div>
+
+      <div class="px-6 py-5 space-y-6">
+
+        <!-- ── ARRIVAL ── -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Arrival</h3>
+
+          <!-- Transport type -->
+          <div class="flex gap-2">
+            <button onclick="setMode('arrival', 'flying')" id="arrival-flying"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-amber-400 bg-amber-50 text-amber-700 text-sm font-medium transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              Flying
+            </button>
+            <button onclick="setMode('arrival', 'driving')" id="arrival-driving"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+              Driving
+            </button>
+            <button onclick="setMode('arrival', 'other')" id="arrival-other"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              Other
+            </button>
+          </div>
+
+          <!-- Flying fields -->
+          <div id="arrival-flying-fields" class="space-y-3">
+
+            <!-- Flight number lookup -->
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Flight number</label>
+              <div class="flex gap-2">
+                <input id="arrival-flight-input" type="text" placeholder="e.g. UA 2047"
+                  class="flex-1 px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase"
+                />
+                <button onclick="lookupFlight()"
+                  class="px-4 py-2.5 rounded-lg bg-stone-800 text-white text-sm font-medium hover:bg-stone-700 transition-colors shrink-0">
+                  Look up
+                </button>
+              </div>
+            </div>
+
+            <!-- Flight result (hidden until lookup) -->
+            <div id="arrival-flight-result" class="hidden rounded-lg bg-emerald-50 border border-emerald-200 px-4 py-3 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-semibold text-stone-800">United Airlines · UA 2047</span>
+                <button onclick="clearFlight()" class="text-xs text-stone-400 hover:text-stone-600">Clear</button>
+              </div>
+              <div class="text-sm text-stone-600">SFO → RNO</div>
+              <div class="text-xs text-stone-500">Departs 1:00 pm · Arrives 2:15 pm</div>
+            </div>
+
+            <!-- Manual date override (shown after lookup or if no flight number) -->
+            <div id="arrival-date-row" class="hidden">
+              <label class="text-xs font-medium text-stone-600">Arrival date</label>
+              <input type="date"
+                class="mt-1.5 w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+
+          </div>
+
+          <!-- Driving fields -->
+          <div id="arrival-driving-fields" class="hidden space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Driving from</label>
+              <input type="text" placeholder="Sacramento, CA"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Arriving</label>
+              <input type="datetime-local"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <!-- Other fields -->
+          <div id="arrival-other-fields" class="hidden space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Arriving</label>
+              <input type="datetime-local"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Details <span class="text-stone-400 font-normal">(optional)</span></label>
+              <input type="text" placeholder="e.g. Amtrak from Portland"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+        </div>
+
+        <hr class="border-stone-100" />
+
+        <!-- ── DEPARTURE ── -->
+        <div class="space-y-3">
+          <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Departure</h3>
+
+          <div class="flex gap-2">
+            <button onclick="setMode('departure', 'flying')" id="departure-flying"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-amber-400 bg-amber-50 text-amber-700 text-sm font-medium transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+              Flying
+            </button>
+            <button onclick="setMode('departure', 'driving')" id="departure-driving"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+              Driving
+            </button>
+            <button onclick="setMode('departure', 'other')" id="departure-other"
+              class="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+              Other
+            </button>
+          </div>
+
+          <div id="departure-flying-fields" class="space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Flight number</label>
+              <div class="flex gap-2">
+                <input type="text" placeholder="e.g. UA 2190"
+                  class="flex-1 px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase"
+                />
+                <button class="px-4 py-2.5 rounded-lg bg-stone-800 text-white text-sm font-medium hover:bg-stone-700 transition-colors shrink-0">
+                  Look up
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="departure-driving-fields" class="hidden space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Leaving</label>
+              <input type="datetime-local"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <div id="departure-other-fields" class="hidden space-y-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Leaving</label>
+              <input type="datetime-local"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Details <span class="text-stone-400 font-normal">(optional)</span></label>
+              <input type="text" placeholder="e.g. Amtrak back to Portland"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between">
+        <a href="event.html" class="text-sm text-stone-400 hover:text-stone-600">Cancel</a>
+        <button class="px-5 py-2.5 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">
+          Save itinerary
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function setMode(leg, mode) {
+      ['flying', 'driving', 'other'].forEach(m => {
+        const btn    = document.getElementById(`${leg}-${m}`);
+        const fields = document.getElementById(`${leg}-${m}-fields`);
+        const active = m === mode;
+        btn.className = btn.className
+          .replace(/border-amber-400 bg-amber-50 text-amber-700/g, '')
+          .replace(/border-stone-200 text-stone-500/g, '')
+          .trim();
+        if (active) {
+          btn.classList.add('border-amber-400', 'bg-amber-50', 'text-amber-700');
+        } else {
+          btn.classList.add('border-stone-200', 'text-stone-500');
+        }
+        fields.classList.toggle('hidden', !active);
+      });
+    }
+
+    function lookupFlight() {
+      const val = document.getElementById('arrival-flight-input').value.trim();
+      if (!val) return;
+      document.getElementById('arrival-flight-result').classList.remove('hidden');
+      document.getElementById('arrival-date-row').classList.remove('hidden');
+    }
+
+    function clearFlight() {
+      document.getElementById('arrival-flight-input').value = '';
+      document.getElementById('arrival-flight-result').classList.add('hidden');
+      document.getElementById('arrival-date-row').classList.add('hidden');
+    }
+  </script>
+
+</body>
+</html>

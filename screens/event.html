@@ -80,6 +80,19 @@
   </header>
 
   <!-- ======================================================
+       RSVP BANNER (shown when current user hasn't responded)
+  ======================================================= -->
+  <div id="rsvp-banner" class="bg-amber-50 border-b border-amber-200">
+    <div class="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+      <p class="text-sm text-amber-800">Sam Potter invited you to this gathering. Are you going?</p>
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="rsvp('going')" class="px-3 py-1.5 rounded-md bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors">I'm going</button>
+        <button onclick="rsvp('declined')" class="px-3 py-1.5 rounded-md border border-amber-300 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors">Can't make it</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
        OVERVIEW TAB
   ======================================================= -->
   <main id="tab-overview" data-tab class="max-w-4xl mx-auto px-6 py-8 space-y-6">
@@ -355,6 +368,37 @@
       </div>
 
     </div>
+
+    <!-- Accommodations -->
+    <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+
+      <div class="px-5 py-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-stone-700">Accommodations</h2>
+        <button class="text-sm text-amber-600 font-medium hover:text-amber-700">+ Add</button>
+      </div>
+
+      <div class="flex items-center gap-4 px-5 py-3">
+        <div class="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <a href="#" class="text-sm font-medium text-stone-800 hover:text-amber-600 transition-colors">Lake House — main rental</a>
+          <div class="text-xs text-stone-400 mt-0.5">airbnb.com · Added by Grandma</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-4 px-5 py-3">
+        <div class="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <a href="#" class="text-sm font-medium text-stone-800 hover:text-amber-600 transition-colors">Overflow cabin (Rick &amp; Clara)</a>
+          <div class="text-xs text-stone-400 mt-0.5">vrbo.com · Added by Rick</div>
+        </div>
+      </div>
+
+    </div>
+
   </main>
 
   <!-- ======================================================
@@ -730,6 +774,10 @@
   </main>
 
   <script>
+    function rsvp(response) {
+      document.getElementById('rsvp-banner').remove();
+    }
+
     function switchTab(name) {
       document.querySelectorAll('[data-tab]').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + name).classList.remove('hidden');
