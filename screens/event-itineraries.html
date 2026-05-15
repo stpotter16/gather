@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gather — Itineraries</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-stone-100 min-h-screen">
+
+  <main class="max-w-4xl mx-auto px-6 py-8 space-y-6">
+
+    <!-- Group Timeline -->
+    <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-stone-100">
+        <h2 class="text-sm font-semibold text-stone-700">Group Timeline</h2>
+      </div>
+
+      <div class="px-5 py-4">
+        <!-- Date headers -->
+        <div class="flex ml-28 mb-2">
+          <div class="flex-1 text-xs text-stone-400 font-medium">Jul 4</div>
+          <div class="flex-1 text-xs text-stone-400 font-medium">Jul 5</div>
+          <div class="flex-1 text-xs text-stone-400 font-medium">Jul 6</div>
+          <div class="flex-1 text-xs text-stone-400 font-medium">Jul 7</div>
+          <div class="w-2"></div><!-- right edge -->
+        </div>
+
+        <!-- Grid + rows -->
+        <div class="space-y-2">
+
+          <!-- Row macro: name col (w-28) + bar area -->
+          <!-- Jul 4=0%, Jul 5=25%, Jul 6=50%, Jul 7=75%, end=100% -->
+          <!-- Bar: left% = arrival day offset, width% = span -->
+
+          <!-- Grandma: Jul 4–7 → left 0%, width 100% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">G</div>
+              <span class="text-xs text-stone-600 truncate">Grandma</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-amber-400" style="left:0%;width:100%"></div>
+            </div>
+          </div>
+
+          <!-- Sam: Jul 4–7 → left 0%, width 100% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-sky-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">S</div>
+              <span class="text-xs text-stone-600 truncate">Sam</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-sky-400" style="left:0%;width:100%"></div>
+            </div>
+          </div>
+
+          <!-- Mary: Jul 4–6 → left 0%, width 75% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">M</div>
+              <span class="text-xs text-stone-600 truncate">Mary</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-rose-400" style="left:0%;width:75%"></div>
+            </div>
+          </div>
+
+          <!-- Tom: Jul 5–7 → left 25%, width 75% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-violet-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">T</div>
+              <span class="text-xs text-stone-600 truncate">Tom</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-violet-400" style="left:25%;width:75%"></div>
+            </div>
+          </div>
+
+          <!-- Linda: Jul 4–7 → left 0%, width 100% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-teal-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">L</div>
+              <span class="text-xs text-stone-600 truncate">Linda</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-teal-400" style="left:0%;width:100%"></div>
+            </div>
+          </div>
+
+          <!-- Jake: Jul 4–5 → left 0%, width 50% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-orange-300 flex items-center justify-center text-white text-xs font-semibold shrink-0">J</div>
+              <span class="text-xs text-stone-600 truncate">Jake</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-orange-300" style="left:0%;width:50%"></div>
+            </div>
+          </div>
+
+          <!-- Anna: Jul 4–7 → left 0%, width 100% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-pink-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">A</div>
+              <span class="text-xs text-stone-600 truncate">Anna</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-pink-400" style="left:0%;width:100%"></div>
+            </div>
+          </div>
+
+          <!-- Rick: Jul 5–7 → left 25%, width 75% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-indigo-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">R</div>
+              <span class="text-xs text-stone-600 truncate">Rick</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-indigo-400" style="left:25%;width:75%"></div>
+            </div>
+          </div>
+
+          <!-- Clara: Jul 5–7 → left 25%, width 75% -->
+          <div class="flex items-center gap-3">
+            <div class="w-28 shrink-0 flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-lime-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">C</div>
+              <span class="text-xs text-stone-600 truncate">Clara</span>
+            </div>
+            <div class="flex-1 relative h-6">
+              <div class="absolute inset-y-0 left-0 right-0 flex">
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1 border-r border-stone-100"></div>
+                <div class="flex-1"></div>
+              </div>
+              <div class="absolute inset-y-1 rounded-full bg-lime-400" style="left:25%;width:75%"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Individual Itineraries -->
+    <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+
+      <div class="px-5 py-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-stone-700">Travel Details</h2>
+        <button class="text-sm text-amber-600 font-medium hover:text-amber-700">+ Add mine</button>
+      </div>
+
+      <!-- Sam -->
+      <div class="px-5 py-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-sky-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">S</div>
+          <span class="text-sm font-medium text-stone-800">Sam Potter</span>
+        </div>
+        <div class="ml-9 space-y-2">
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-emerald-600 w-16 shrink-0 pt-0.5">Arriving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 4 · 3:30 pm</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying · UA 2047 · SFO → RNO
+              </div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-rose-500 w-16 shrink-0 pt-0.5">Leaving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 7 · 6:00 pm</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying · UA 2190 · RNO → SFO
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mary -->
+      <div class="px-5 py-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">M</div>
+          <span class="text-sm font-medium text-stone-800">Mary Potter</span>
+        </div>
+        <div class="ml-9 space-y-2">
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-emerald-600 w-16 shrink-0 pt-0.5">Arriving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 4 · ~5:00 pm</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Driving from Sacramento · ~3 hr
+              </div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-rose-500 w-16 shrink-0 pt-0.5">Leaving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 6 · morning</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Driving back to Sacramento
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tom -->
+      <div class="px-5 py-4">
+        <div class="flex items-center gap-2 mb-3">
+          <div class="w-7 h-7 rounded-full bg-violet-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">T</div>
+          <span class="text-sm font-medium text-stone-800">Tom Potter</span>
+        </div>
+        <div class="ml-9 space-y-2">
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-emerald-600 w-16 shrink-0 pt-0.5">Arriving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 5 · 11:00 am</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying · DL 881 · LAX → RNO
+              </div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <span class="text-xs font-medium text-rose-500 w-16 shrink-0 pt-0.5">Leaving</span>
+            <div>
+              <div class="text-sm text-stone-700">Jul 7 · 4:15 pm</div>
+              <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying · DL 446 · RNO → LAX
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- No itinerary yet - Linda -->
+      <div class="px-5 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-teal-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">L</div>
+            <span class="text-sm font-medium text-stone-800">Linda Nguyen</span>
+          </div>
+          <span class="text-xs text-stone-400 italic">No itinerary yet</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</body>
+</html>
