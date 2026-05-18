@@ -73,7 +73,7 @@
       <nav class="flex gap-1 -mb-px">
         <button data-tab-btn="overview"    onclick="switchTab('overview')"    class="px-4 py-2.5 text-sm font-medium border-b-2 text-amber-600 border-amber-500">Overview</button>
         <button data-tab-btn="itineraries" onclick="switchTab('itineraries')" class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Itineraries</button>
-        <button data-tab-btn="food"        onclick="switchTab('food')"        class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Food</button>
+        <button data-tab-btn="food"        onclick="switchTab('food')"        class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Meal Plan</button>
         <button data-tab-btn="activities"  onclick="switchTab('activities')"  class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Activities</button>
       </nav>
     </div>
@@ -514,10 +514,43 @@
   </main>
 
   <!-- ======================================================
-       FOOD TAB
+       MEAL PLAN TAB
   ======================================================= -->
-  <main id="tab-food" data-tab class="hidden max-w-4xl mx-auto px-6 py-8 space-y-8">
+  <main id="tab-food" data-tab class="hidden max-w-4xl mx-auto px-6 py-8 space-y-6">
 
+    <!-- Top bar -->
+    <div class="flex items-center justify-between">
+      <div><!-- spacer --></div>
+      <button onclick="toggleGroceries()" class="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-stone-300 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.853-7.156a60.026 60.026 0 00-16.538-1.684l.256.977m0 0a3 3 0 013 3m0 0h6.75" /></svg>
+        Groceries
+      </button>
+    </div>
+
+    <!-- Food restrictions -->
+    <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+      <div class="px-5 py-4 flex items-center justify-between">
+        <h2 class="text-sm font-semibold text-stone-700">Food restrictions</h2>
+        <button class="text-sm text-amber-600 font-medium hover:text-amber-700">+ Add yours</button>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3">
+        <div class="w-7 h-7 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">M</div>
+        <span class="text-sm text-stone-800 flex-1">Mary Potter</span>
+        <span class="text-sm text-stone-500">Vegetarian</span>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3">
+        <div class="w-7 h-7 rounded-full bg-orange-300 flex items-center justify-center text-white text-xs font-semibold shrink-0">J</div>
+        <span class="text-sm text-stone-800 flex-1">Jake Potter</span>
+        <span class="text-sm text-stone-500">Nut allergy</span>
+      </div>
+      <div class="flex items-center gap-3 px-5 py-3">
+        <div class="w-7 h-7 rounded-full bg-lime-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">C</div>
+        <span class="text-sm text-stone-800 flex-1">Clara Flores</span>
+        <span class="text-sm text-stone-500">Gluten free</span>
+      </div>
+    </div>
+
+    <!-- Saturday Jul 4 -->
     <section class="space-y-3">
       <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Saturday · Jul 4</h2>
       <div class="bg-white rounded-xl border border-stone-200">
@@ -526,96 +559,91 @@
           <span class="text-xs text-stone-400">Dinner</span>
         </div>
         <div class="divide-y divide-stone-100">
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">G</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Grandma's potato salad</div></div>
-            <span class="text-xs text-stone-400">Grandma</span>
+          <!-- Assigned cooks -->
+          <div class="px-5 py-3 flex items-center gap-3">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-1.5">
+                <div class="w-6 h-6 rounded-full bg-sky-400 ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold">S</div>
+                <div class="w-6 h-6 rounded-full bg-amber-400 ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold">G</div>
+              </div>
+              <span class="text-xs text-stone-500">Sam, Grandma</span>
+            </div>
+            <button class="ml-auto text-xs text-stone-400 hover:text-amber-600 font-medium transition-colors">Assign</button>
           </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-sky-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">S</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Burgers &amp; dogs on the grill</div></div>
-            <span class="text-xs text-stone-400">Sam</span>
-          </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">M</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Corn on the cob</div></div>
-            <span class="text-xs text-stone-400">Mary</span>
-          </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-stone-100 border-2 border-dashed border-stone-300 shrink-0"></div>
-            <div class="flex-1"><div class="text-sm text-stone-400 italic">Dessert — unclaimed</div></div>
-            <button class="text-xs font-medium text-amber-600 hover:text-amber-700">Claim</button>
-          </div>
-          <div class="px-5 py-3">
-            <button class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              Add a dish
-            </button>
+          <!-- Dishes -->
+          <div class="px-5 py-2.5 flex items-center gap-2">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Burgers &amp; dogs</span>
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Potato salad</span>
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Corn on the cob</span>
+              <button class="text-xs text-stone-400 hover:text-amber-600 px-2 py-1 rounded-md border border-dashed border-stone-300 hover:border-amber-400 transition-colors">+ Add</button>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Sunday Jul 5 -->
     <section class="space-y-3">
       <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Sunday · Jul 5</h2>
+
       <div class="bg-white rounded-xl border border-stone-200">
         <div class="px-5 py-3 border-b border-stone-100 flex items-center justify-between">
           <span class="text-sm font-semibold text-stone-700">Breakfast</span>
           <span class="text-xs text-stone-400">~9 am</span>
         </div>
         <div class="divide-y divide-stone-100">
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-pink-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">A</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Pancakes + bacon</div></div>
-            <span class="text-xs text-stone-400">Anna</span>
+          <div class="px-5 py-3 flex items-center gap-3">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-full bg-pink-400 ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold">A</div>
+              <span class="text-xs text-stone-500">Anna</span>
+            </div>
+            <button class="ml-auto text-xs text-stone-400 hover:text-amber-600 font-medium transition-colors">Assign</button>
           </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-amber-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">G</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Fruit salad</div></div>
-            <span class="text-xs text-stone-400">Grandma</span>
-          </div>
-          <div class="px-5 py-3">
-            <button class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              Add a dish
-            </button>
+          <div class="px-5 py-2.5 flex items-center gap-2">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Pancakes + bacon</span>
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Fruit salad</span>
+              <button class="text-xs text-stone-400 hover:text-amber-600 px-2 py-1 rounded-md border border-dashed border-stone-300 hover:border-amber-400 transition-colors">+ Add</button>
+            </div>
           </div>
         </div>
       </div>
+
       <div class="bg-white rounded-xl border border-stone-200">
         <div class="px-5 py-3 border-b border-stone-100 flex items-center justify-between">
           <span class="text-sm font-semibold text-stone-700">Dinner</span>
           <span class="text-xs text-stone-400">~6 pm</span>
         </div>
         <div class="divide-y divide-stone-100">
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-teal-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">L</div>
-            <div class="flex-1">
-              <div class="text-sm text-stone-800">Taco bar</div>
-              <div class="text-xs text-stone-400 mt-0.5">Beef, chicken, all the fixings</div>
+          <div class="px-5 py-3 flex items-center gap-3">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
+            <div class="flex items-center gap-2">
+              <div class="flex -space-x-1.5">
+                <div class="w-6 h-6 rounded-full bg-teal-400 ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold">L</div>
+                <div class="w-6 h-6 rounded-full bg-indigo-400 ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold">R</div>
+              </div>
+              <span class="text-xs text-stone-500">Linda, Rick</span>
             </div>
-            <span class="text-xs text-stone-400">Linda</span>
+            <button class="ml-auto text-xs text-stone-400 hover:text-amber-600 font-medium transition-colors">Assign</button>
           </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-indigo-400 flex items-center justify-center text-white text-xs font-semibold shrink-0">R</div>
-            <div class="flex-1"><div class="text-sm text-stone-800">Guacamole &amp; chips</div></div>
-            <span class="text-xs text-stone-400">Rick</span>
-          </div>
-          <div class="flex items-center gap-3 px-5 py-3">
-            <div class="w-7 h-7 rounded-full bg-stone-100 border-2 border-dashed border-stone-300 shrink-0"></div>
-            <div class="flex-1"><div class="text-sm text-stone-400 italic">Dessert — unclaimed</div></div>
-            <button class="text-xs font-medium text-amber-600 hover:text-amber-700">Claim</button>
-          </div>
-          <div class="px-5 py-3">
-            <button class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-              Add a dish
-            </button>
+          <div class="px-5 py-2.5 flex items-center gap-2">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Taco bar</span>
+              <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">Guacamole &amp; chips</span>
+              <button class="text-xs text-stone-400 hover:text-amber-600 px-2 py-1 rounded-md border border-dashed border-stone-300 hover:border-amber-400 transition-colors">+ Add</button>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Monday Jul 6 -->
     <section class="space-y-3">
       <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Monday · Jul 6</h2>
       <div class="bg-white rounded-xl border border-stone-200">
@@ -623,12 +651,15 @@
           <span class="text-sm font-semibold text-stone-700">Dinner</span>
           <span class="text-xs text-stone-400">~6 pm</span>
         </div>
-        <div class="px-5 py-4 text-center">
-          <p class="text-sm text-stone-400 italic mb-2">Nothing planned yet</p>
-          <button class="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-700 transition-colors mx-auto font-medium">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-            Add a dish
-          </button>
+        <div class="divide-y divide-stone-100">
+          <div class="px-5 py-3 flex items-center gap-3">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
+            <button class="text-xs text-stone-400 hover:text-amber-600 font-medium transition-colors">Assign someone</button>
+          </div>
+          <div class="px-5 py-2.5 flex items-center gap-2">
+            <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
+            <button class="text-xs text-stone-400 hover:text-amber-600 px-2 py-1 rounded-md border border-dashed border-stone-300 hover:border-amber-400 transition-colors">+ Add</button>
+          </div>
         </div>
       </div>
     </section>
@@ -638,6 +669,85 @@
     </button>
 
   </main>
+
+  <!-- ======================================================
+       GROCERY PANEL
+  ======================================================= -->
+  <div id="grocery-backdrop" onclick="toggleGroceries()" class="hidden fixed inset-0 bg-stone-900/20 z-20"></div>
+  <aside id="grocery-panel" class="fixed top-0 right-0 h-full w-80 bg-white border-l border-stone-200 shadow-xl z-30 translate-x-full transition-transform duration-200 flex flex-col">
+
+    <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-stone-900">Groceries</h2>
+      <button onclick="toggleGroceries()" class="text-stone-400 hover:text-stone-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto divide-y divide-stone-100">
+
+      <!-- To buy -->
+      <div class="px-5 py-4 space-y-3">
+        <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">To buy</h3>
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400" />
+            <span class="text-sm text-stone-700 flex-1">Ground beef (3 lbs)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400" />
+            <span class="text-sm text-stone-700 flex-1">Hot dogs</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400" />
+            <span class="text-sm text-stone-700 flex-1">Burger buns</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400" />
+            <span class="text-sm text-stone-700 flex-1">Taco shells &amp; tortillas</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="checkbox" checked class="rounded border-stone-300 text-amber-500 focus:ring-amber-400" />
+            <span class="text-sm text-stone-400 line-through flex-1">Avocados (6)</span>
+          </div>
+        </div>
+        <button class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          Add item
+        </button>
+      </div>
+
+      <!-- To bring -->
+      <div class="px-5 py-4 space-y-3">
+        <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">To bring</h3>
+        <div class="space-y-2.5">
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400 shrink-0" />
+            <span class="text-sm text-stone-700 flex-1">Potato salad</span>
+            <div class="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-white text-xs font-semibold shrink-0" title="Grandma">G</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400 shrink-0" />
+            <span class="text-sm text-stone-700 flex-1">Corn (12 ears)</span>
+            <div class="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center text-white text-xs font-semibold shrink-0" title="Mary">M</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" class="rounded border-stone-300 text-amber-500 focus:ring-amber-400 shrink-0" />
+            <span class="text-sm text-stone-700 flex-1">Marshmallows &amp; s'mores kit</span>
+            <div class="w-6 h-6 rounded-full bg-stone-200 flex items-center justify-center text-stone-400 text-xs font-semibold shrink-0">?</div>
+          </div>
+
+        </div>
+        <button class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+          Add item
+        </button>
+      </div>
+
+    </div>
+  </aside>
 
   <!-- ======================================================
        ACTIVITIES TAB
@@ -774,6 +884,14 @@
   </main>
 
   <script>
+    function toggleGroceries() {
+      const panel    = document.getElementById('grocery-panel');
+      const backdrop = document.getElementById('grocery-backdrop');
+      const open     = panel.classList.contains('translate-x-full');
+      panel.classList.toggle('translate-x-full', !open);
+      backdrop.classList.toggle('hidden', !open);
+    }
+
     function rsvp(response) {
       document.getElementById('rsvp-banner').remove();
     }

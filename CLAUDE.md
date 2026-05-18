@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-**Gather** — a family gathering coordination website. Users create events, invite family members, and collaborate on logistics: arrival/departure itineraries, food planning, and activity brainstorming.
+**Gather** — a family gathering coordination website. Users create events, invite family members, and collaborate on logistics: arrival/departure itineraries, meal planning, and activity brainstorming.
 
 ## Planned stack
 
@@ -22,20 +22,31 @@ HTML mockups live in `screens/`. The main event page (`screens/event.html`) is t
 
 - `screens/gatherings.html` — home screen, lists upcoming and past events
 - `screens/create-gathering.html` — form to create a new event
-- `screens/event.html` — full event detail page (tabbed: Overview, Itineraries, Food, Activities); includes an RSVP banner for users who haven't responded yet
+- `screens/event.html` — full event detail page (tabbed: Overview, Itineraries, Meal Plan, Activities); includes an RSVP banner for users who haven't responded yet
 - `screens/invite.html` — modal for inviting existing users to an event
 - `screens/add-itinerary.html` — modal for adding arrival/departure details; supports Flying (with flight number lookup), Driving, and Other
 - `screens/event-header.html` — header component in isolation
 - `screens/event-attendees.html` — attendees section in isolation
 - `screens/event-itineraries.html` — itineraries section in isolation
-- `screens/event-food.html` — food coordination section in isolation
+- `screens/event-food.html` — legacy food section mockup (superseded by the Meal Plan tab in event.html)
 - `screens/event-activities.html` — activity brainstorm section in isolation
 
-## Third-party integrations
+## Feature notes
 
-**Flights:** flight number lookup via a flight data API (e.g. AviationStack) — user enters a flight number and route/times auto-fill. Triggered from the add-itinerary modal.
+**Meal Plan tab** (formerly "Food"):
+- Global food restrictions card at the top — one entry per person, free text
+- Meals are organised by day; each meal has a "Cooking" assignment (one or more attendees) and a "Dishes" list (pill-style, no per-dish ownership)
+- Responsibility is at the meal level, not the dish level
+- Grocery panel slides in from the right via a "Groceries" button; split into "To buy" (unassigned checklist) and "To bring" (checklist with per-item attendee assignment); both sections are manually curated
 
-**Accommodations:** no API integration possible (Airbnb and VRBO have no public API). Accommodations are stored as labelled links. The accommodations list lives on the Overview tab and is flexible — there can be one shared rental or many. Anyone in the event can add a link.
+**Accommodations** (Overview tab):
+- Flexible — can be one shared rental or many per-person links
+- Stored as labelled URLs; anyone in the event can add one
+- No API integration (Airbnb and VRBO have no public API)
+
+**Itineraries:**
+- Flight number lookup via a flight data API (e.g. AviationStack) — route and times auto-fill from the flight number
+- Also supports Driving and Other modes
 
 ## Design conventions
 
