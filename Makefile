@@ -17,8 +17,8 @@ server/deploy:
 db/migrate:
 	go run ./cmd/migrate
 
-user/hash:
-	@go run ./cmd/hash
+user/add:
+	go run ./cmd/useradd -email $(EMAIL) -name $(NAME) $(if $(COLOR),-color $(COLOR))
 
 
 css/build:

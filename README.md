@@ -19,6 +19,17 @@ Generate an HMAC secret:
 make secrets/hmac
 ```
 
+## Managing users
+
+No self-serve signup. Add users manually:
+
+```bash
+make user/add EMAIL=sam@example.com NAME="Sam Potter"
+make user/add EMAIL=sam@example.com NAME="Sam Potter" COLOR="#38bdf8"
+```
+
+Password is prompted interactively. `COLOR` is an optional hex value — defaults to a random color from a built-in palette.
+
 ## Schema changes
 
 Migrations live in `internal/store/postgres/migrations/` as numbered SQL files (`001_...`, `002_...`). The server does **not** auto-migrate — run migrations explicitly before deploying new code:

@@ -7,6 +7,18 @@ import (
 	"github.com/stpotter16/gather/internal/store"
 )
 
+func (s Store) CreateUser(ctx context.Context, name, email, avatarColor, passwordHash string) (int, error) {
+	var id int
+	err := s.pool.QueryRow(ctx,
+		`INSERT INTO users (name, email, avatar_color, password_hash) VALUES ($1, $2, $3, $4) RETURNING id`,
+		name, email, avatarColor, passwordHash,
+	).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("inserting user: %w", err)
+	}
+	return id, nil
+}
+
 func (s Store) GetUserByEmail(ctx context.Context, email string) (store.User, error) {
 	var u store.User
 	err := s.pool.QueryRow(ctx, `
