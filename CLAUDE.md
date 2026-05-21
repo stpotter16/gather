@@ -6,38 +6,64 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Gather** — a family gathering coordination website. Users create events, invite family members, and collaborate on logistics: arrival/departure itineraries, meal planning, and activity brainstorming.
 
-## Planned stack
+## Stack
 
-- **Backend:** SSR Go + PostgreSQL (Neon)
-- **Hosting:** Fly.io
-- **Styling:** Tailwind CSS
+- **Language:** Go (net/http, html/template — no framework)
+- **Database:** PostgreSQL via pgx/v5, raw SQL (no ORM, no codegen)
+- **Auth:** HMAC-signed cookies (no DB sessions — avoids per-request Neon cold-start penalty)
+- **CSS:** Tailwind v4, compiled to `internal/handlers/static/css/style.css` via `@tailwindcss/cli`
+- **Hosting:** Fly.io + Neon (serverless Postgres)
+- **Dev environment:** Nix flake (`nix develop` or `make shell`)
+- **Live reload:** `modd` (`make server/live`)
+
+## Build commands
+
+```
+make shell          # enter nix dev environment
+make server/build   # compile to ./tmp/server
+make server/run     # build + run
+make server/live    # build + run with modd live reload
+make css/build      # compile Tailwind CSS (run once before first serve)
+make test/go        # run tests
+make lint/go        # run Go linter
+```
+
+Run `make css/build` once before first serving — the compiled CSS is committed to the repo but must be generated initially.
+
+## Project structure
+
+```
+cmd/server/main.go              entry point, run() pattern
+internal/handlers/              HTTP layer
+  middleware/                   logging, CSP, auth
+  static/css/style.css          compiled Tailwind output (committed)
+  templates/layouts/            base.html, app.html
+  templates/pages/              one file per page
+  routes.go                     all route registration
+  server.go                     NewServer(), wires middleware
+  views.go                      template rendering helpers + embed
+  static.go                     embedded static file serving
+internal/sessions/              HMAC signed-cookie session management
+internal/store/                 store interface
+  postgres/                     pgx/v5 implementation
+    migrations/                 numbered SQL files (001_..., 002_..., ...)
+style/input.css                 Tailwind source (just @import "tailwindcss")
+dev-scripts/                    shell scripts called by Makefile
+```
 
 ## Auth and user management
 
-There is no self-serve signup. User rows are added to the database manually by the admin. The invite flow is restricted to users already in the system — inviting someone who doesn't have an account is not supported.
+No self-serve signup. Users are added to the database manually by the admin via SQL. Inviting is restricted to existing users.
 
-## Screens
-
-HTML mockups live in `screens/`. The main event page (`screens/event.html`) is the reference for the design system — color palette, component patterns, and layout conventions all derive from it.
-
-- `screens/gatherings.html` — home screen, lists upcoming and past events
-- `screens/create-gathering.html` — form to create a new event
-- `screens/event.html` — full event detail page (tabbed: Overview, Itineraries, Meal Plan, Activities); includes an RSVP banner for users who haven't responded yet
-- `screens/invite.html` — modal for inviting existing users to an event
-- `screens/add-itinerary.html` — modal for adding arrival/departure details; supports Flying (with flight number lookup), Driving, and Other
-- `screens/event-header.html` — header component in isolation
-- `screens/event-attendees.html` — attendees section in isolation
-- `screens/event-itineraries.html` — itineraries section in isolation
-- `screens/event-food.html` — legacy food section mockup (superseded by the Meal Plan tab in event.html)
-- `screens/event-activities.html` — activity brainstorm section in isolation
+Sessions use HMAC-signed cookies (not DB-backed). Cookie payload: `userID|expires`, signed with `GATHER_HMAC_SECRET`. On logout the cookie is cleared client-side. To force-logout all users, rotate the secret.
 
 ## Feature notes
 
 **Meal Plan tab** (formerly "Food"):
 - Global food restrictions card at the top — one entry per person, free text
-- Meals are organised by day; each meal has a "Cooking" assignment (one or more attendees) and a "Dishes" list (pill-style, no per-dish ownership)
+- Meals organised by day; each meal has a cook assignment (one or more attendees) and a dish list
 - Responsibility is at the meal level, not the dish level
-- Grocery panel slides in from the right via a "Groceries" button; split into "To buy" (unassigned checklist) and "To bring" (checklist with per-item attendee assignment); both sections are manually curated
+- Grocery panel slides in from the right; split into "To buy" and "To bring" (with per-item attendee assignment)
 
 **Accommodations** (Overview tab):
 - Flexible — can be one shared rental or many per-person links
@@ -45,14 +71,23 @@ HTML mockups live in `screens/`. The main event page (`screens/event.html`) is t
 - No API integration (Airbnb and VRBO have no public API)
 
 **Itineraries:**
-- Flight number lookup via a flight data API (e.g. AviationStack) — route and times auto-fill from the flight number
+- Flight number lookup via a flight data API (e.g. AviationStack) — route and times auto-fill
 - Also supports Driving and Other modes
+
+## Screens (HTML mockups)
+
+Live in `screens/` — reference for design and UI decisions, not production code.
+
+- `screens/gatherings.html` — home screen
+- `screens/create-gathering.html` — create event form
+- `screens/event.html` — full event detail page (Overview, Itineraries, Meal Plan, Activities tabs)
+- `screens/invite.html` — invite modal
+- `screens/add-itinerary.html` — add itinerary modal
 
 ## Design conventions
 
-- **Accent color:** amber (`bg-amber-500`, `text-amber-600`)
-- **Neutral base:** stone scale (`bg-stone-100` page background, `bg-white` cards)
+- **Accent:** amber (`bg-amber-500`, `text-amber-600`)
+- **Neutral base:** stone scale (`bg-stone-100` page bg, `bg-white` cards)
 - **Cards:** `bg-white rounded-xl border border-stone-200`
 - **Section headers inside cards:** `text-xs font-semibold text-stone-400 uppercase tracking-wide`
-- **Avatars:** colored `rounded-full` divs with a single capital letter initial; each person has a consistent color across all screens
-- **Tailwind via CDN** for now (`<script src="https://cdn.tailwindcss.com"></script>`)
+- **Avatars:** colored `rounded-full` divs with a single capital letter initial

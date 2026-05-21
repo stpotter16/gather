@@ -1,0 +1,9 @@
+{{ define "content" }}
+<nav class="bg-white border-b border-stone-200">
+  <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+    <a href="/" class="text-lg font-bold text-stone-900 tracking-tight">Gather</a>
+    {{ block "nav-right" . }}{{ end }}
+  </div>
+</nav>
+{{ block "main" . }}{{ end }}
+{{ end }}
