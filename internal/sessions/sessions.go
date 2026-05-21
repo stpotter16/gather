@@ -17,17 +17,15 @@ const cookieName = "gather_session"
 type Manager struct {
 	secret []byte
 	maxAge time.Duration
-	secure bool
 }
 
-func New(secret string, secure bool) (*Manager, error) {
+func New(secret string) (*Manager, error) {
 	if secret == "" {
 		return nil, errors.New("GATHER_HMAC_SECRET not set")
 	}
 	return &Manager{
 		secret: []byte(secret),
 		maxAge: 30 * 24 * time.Hour,
-		secure: secure,
 	}, nil
 }
 
@@ -41,7 +39,7 @@ func (m *Manager) Set(w http.ResponseWriter, userID int) {
 		Value:    value,
 		Expires:  expires,
 		HttpOnly: true,
-		Secure:   m.secure,
+		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
 		Path:     "/",
 	})

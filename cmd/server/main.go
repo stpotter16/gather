@@ -37,7 +37,7 @@ func run(
 	}
 	defer store.Close()
 
-	sm, err := sessions.New(getenv("GATHER_HMAC_SECRET"), getenv("APP_ENV") == "production")
+	sm, err := sessions.New(getenv("GATHER_HMAC_SECRET"))
 	if err != nil {
 		return fmt.Errorf("initialising sessions: %w", err)
 	}
