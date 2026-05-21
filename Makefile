@@ -14,6 +14,9 @@ server/live:
 server/deploy:
 	./dev-scripts/deploy.sh
 
+db/migrate:
+	go run ./cmd/migrate
+
 
 css/build:
 	npx @tailwindcss/cli -i style/input.css -o internal/handlers/static/css/style.css --minify

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stpotter16/gather/internal/handlers"
+	"github.com/stpotter16/gather/internal/store/postgres"
 )
 
 func run(
@@ -22,6 +24,17 @@ func run(
 	defer cancel()
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	databaseURL := getenv("DATABASE_URL")
+	if databaseURL == "" {
+		return errors.New("DATABASE_URL environment variable not set")
+	}
+
+	store, err := postgres.New(ctx, databaseURL)
+	if err != nil {
+		return fmt.Errorf("initialising database: %w", err)
+	}
+	defer store.Close()
 
 	handler := handlers.NewServer()
 

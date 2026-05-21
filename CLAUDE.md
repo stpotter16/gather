@@ -24,6 +24,7 @@ make server/build   # compile to ./tmp/server
 make server/run     # build + run
 make server/live    # build + run with modd live reload
 make css/build      # compile Tailwind CSS (run once before first serve)
+make db/migrate     # apply pending migrations (run before deploying schema changes)
 make test/go        # run tests
 make lint/go        # run Go linter
 ```
@@ -34,6 +35,7 @@ Run `make css/build` once before first serving — the compiled CSS is committed
 
 ```
 cmd/server/main.go              entry point, run() pattern
+cmd/migrate/main.go             migration CLI — connect, apply pending migrations, exit
 internal/handlers/              HTTP layer
   middleware/                   logging, CSP, auth
   static/css/style.css          compiled Tailwind output (committed)
@@ -83,6 +85,103 @@ Live in `screens/` — reference for design and UI decisions, not production cod
 - `screens/event.html` — full event detail page (Overview, Itineraries, Meal Plan, Activities tabs)
 - `screens/invite.html` — invite modal
 - `screens/add-itinerary.html` — add itinerary modal
+
+## Database schema
+
+Migrations in `internal/store/postgres/migrations/`, applied in order at startup.
+
+### users (001)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| name | TEXT | display name |
+| email | TEXT UNIQUE | login identifier |
+| avatar_color | TEXT | hex color for initial avatar |
+| password_hash | TEXT | bcrypt |
+| created_at | TIMESTAMPTZ | |
+
+No self-serve signup — rows inserted manually by admin.
+
+### events (002)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| name | TEXT | |
+| start_date | DATE | date only, not TIMESTAMPTZ |
+| end_date | DATE | |
+| location | TEXT | |
+| description | TEXT | nullable |
+| created_by | INTEGER FK → users | |
+| created_at | TIMESTAMPTZ | |
+
+### event_members (003)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| event_id | INTEGER FK → events | CASCADE delete |
+| user_id | INTEGER FK → users | |
+| status | TEXT | CHECK: 'pending', 'going', 'declined'; default 'pending' |
+| invited_by | INTEGER FK → users | |
+| invited_at | TIMESTAMPTZ | |
+| responded_at | TIMESTAMPTZ | nullable |
+
+UNIQUE(event_id, user_id).
+
+### itineraries (004)
+One row per person per event. Flat columns for both arrival and departure.
+
+| prefix | columns |
+|---|---|
+| arrival_ | mode CHECK('flying','driving','other'), date DATE, time TIME, flight_number, airline, origin, destination, details |
+| departure_ | same set of columns |
+
+UNIQUE(event_id, user_id). All columns nullable — a person may have only one direction filled in.
+
+### accommodations (005)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| event_id | INTEGER FK → events | CASCADE delete |
+| label | TEXT | human-readable name |
+| url | TEXT | link to Airbnb/VRBO/etc. |
+| added_by | INTEGER FK → users | |
+| created_at | TIMESTAMPTZ | |
+
+### meals (006)
+Three tables: `meals`, `meal_assignments`, `dishes`.
+
+**meals**: id, event_id FK, name, date DATE, created_at  
+**meal_assignments**: (meal_id, user_id) composite PK — who is cooking  
+**dishes**: id, meal_id FK, name, notes — no per-dish owner; responsibility is at the meal level
+
+### food_restrictions (007)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| event_id | INTEGER FK → events | CASCADE delete |
+| user_id | INTEGER FK → users | |
+| restriction | TEXT | free text |
+
+UNIQUE(event_id, user_id) — one restriction entry per person per event. Scoped per-event rather than globally per-user for flexibility.
+
+### groceries (008)
+| column | type | notes |
+|---|---|---|
+| id | SERIAL PK | |
+| event_id | INTEGER FK → events | CASCADE delete |
+| name | TEXT | |
+| category | TEXT | CHECK: 'buy' or 'bring' |
+| assigned_to | INTEGER FK → users | nullable — only relevant for 'bring' items |
+| is_checked | BOOLEAN | default FALSE |
+| created_at | TIMESTAMPTZ | |
+
+### activities (009)
+Two tables: `activities` and `activity_votes`.
+
+**activities**: id, event_id FK, name, description (nullable), suggested_by FK → users, status CHECK('idea','confirmed') default 'idea', created_at  
+**activity_votes**: (activity_id, user_id) composite PK. Vote count via `SELECT COUNT(*) FROM activity_votes WHERE activity_id = $1`.
+
+---
 
 ## Design conventions
 
