@@ -1,10 +1,105 @@
 {{ template "base.html" . }}
 
-{{ define "title" }}Gather{{ end }}
-
 {{ define "main" }}
-<main class="max-w-4xl mx-auto px-6 py-16 text-center">
-  <h1 class="text-4xl font-bold text-stone-900 mb-3">Gather</h1>
-  <p class="text-stone-500">Family gathering coordination.</p>
+<main class="max-w-4xl mx-auto px-6 py-8 space-y-8">
+
+  {{ if .Upcoming }}
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Upcoming</h2>
+      <a href="/events/new" class="text-sm font-medium text-amber-600 hover:text-amber-700">+ New gathering</a>
+    </div>
+    {{ range .Upcoming }}
+    <a href="/events/{{ .ID }}" class="block bg-white rounded-xl border border-stone-200 p-5 hover:border-amber-300 hover:shadow-sm transition-all">
+      <div class="flex items-start justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <h3 class="text-base font-semibold text-stone-900">{{ .Name }}</h3>
+            {{ if .DaysLabel }}
+            <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">{{ .DaysLabel }}</span>
+            {{ end }}
+          </div>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">
+            <div class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+              {{ .DateRange }}
+            </div>
+            <div class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5 text-stone-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+              {{ .Location }}
+            </div>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+      </div>
+      <div class="mt-4 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="flex -space-x-2">
+            {{ range .Members }}
+            <div class="w-7 h-7 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold"
+                 style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+            {{ end }}
+            {{ if gt .ExtraAvatars 0 }}
+            <div class="w-7 h-7 rounded-full bg-stone-200 ring-2 ring-white flex items-center justify-center text-stone-500 text-xs font-semibold">+{{ .ExtraAvatars }}</div>
+            {{ end }}
+          </div>
+          <span class="text-xs text-stone-400">{{ .MemberCount }} invited</span>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-stone-400">
+          <span class="text-emerald-600 font-medium">{{ .GoingCount }} going</span>
+          <span>{{ .PendingCount }} pending</span>
+        </div>
+      </div>
+    </a>
+    {{ end }}
+  </section>
+  {{ else }}
+  <section class="space-y-3">
+    <div class="flex items-center justify-between">
+      <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Upcoming</h2>
+      <a href="/events/new" class="text-sm font-medium text-amber-600 hover:text-amber-700">+ New gathering</a>
+    </div>
+    <p class="text-sm text-stone-400 py-4">No upcoming gatherings. <a href="/events/new" class="text-amber-600 hover:text-amber-700">Create one</a>.</p>
+  </section>
+  {{ end }}
+
+  {{ if .Past }}
+  <section class="space-y-3">
+    <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Past</h2>
+    {{ range .Past }}
+    <a href="/events/{{ .ID }}" class="block bg-white rounded-xl border border-stone-200 p-5 hover:border-stone-300 hover:shadow-sm transition-all opacity-60 hover:opacity-100">
+      <div class="flex items-start justify-between gap-4">
+        <div class="space-y-1">
+          <h3 class="text-base font-semibold text-stone-700">{{ .Name }}</h3>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-400">
+            <div class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+              {{ .DateRange }}
+            </div>
+            <div class="flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+              {{ .Location }}
+            </div>
+          </div>
+        </div>
+        <svg class="w-5 h-5 text-stone-300 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+      </div>
+      <div class="mt-4 flex items-center gap-2">
+        <div class="flex -space-x-2">
+          {{ range .Members }}
+          <div class="w-7 h-7 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold"
+               style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+          {{ end }}
+          {{ if gt .ExtraAvatars 0 }}
+          <div class="w-7 h-7 rounded-full bg-stone-200 ring-2 ring-white flex items-center justify-center text-stone-400 text-xs font-semibold">+{{ .ExtraAvatars }}</div>
+          {{ end }}
+        </div>
+        <span class="text-xs text-stone-400">{{ .GoingCount }} attended</span>
+      </div>
+    </a>
+    {{ end }}
+  </section>
+  {{ end }}
+
 </main>
 {{ end }}

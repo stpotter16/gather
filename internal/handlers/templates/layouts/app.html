@@ -2,7 +2,12 @@
 <nav class="bg-white border-b border-stone-200">
   <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
     <a href="/" class="text-lg font-bold text-stone-900 tracking-tight">Gather</a>
-    {{ block "nav-right" . }}{{ end }}
+    {{ block "nav-right" . }}
+    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
+         style="background-color: {{ .User.AvatarColor }}">
+      {{ .User.Name | initial }}
+    </div>
+    {{ end }}
   </div>
 </nav>
 {{ block "main" . }}{{ end }}
