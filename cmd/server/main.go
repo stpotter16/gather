@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/stpotter16/gather/internal/handlers"
+	"github.com/stpotter16/gather/internal/sessions"
 	"github.com/stpotter16/gather/internal/store/postgres"
 )
 
@@ -36,7 +37,12 @@ func run(
 	}
 	defer store.Close()
 
-	handler := handlers.NewServer()
+	sm, err := sessions.New(getenv("GATHER_HMAC_SECRET"), getenv("APP_ENV") == "production")
+	if err != nil {
+		return fmt.Errorf("initialising sessions: %w", err)
+	}
+
+	handler := handlers.NewServer(store, sm)
 
 	port := getenv("PORT")
 	if port == "" {

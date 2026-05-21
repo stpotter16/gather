@@ -17,6 +17,9 @@ server/deploy:
 db/migrate:
 	go run ./cmd/migrate
 
+user/hash:
+	@go run ./cmd/hash
+
 
 css/build:
 	npx @tailwindcss/cli -i style/input.css -o internal/handlers/static/css/style.css --minify
