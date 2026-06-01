@@ -1,48 +1,48 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/stpotter16/gather/internal/password"
 )
 
-type loginProps struct {
-	baseProps
-	Error string
-}
-
 func (s *Server) loginGet(w http.ResponseWriter, r *http.Request) {
-	renderAuthPage(w, r, http.StatusOK, "login.html", loginProps{baseProps: newBaseProps(r)})
+	renderAuthPage(w, r, http.StatusOK, "login.html", newBaseProps(r))
 }
 
 func (s *Server) loginPost(w http.ResponseWriter, r *http.Request) {
-	email := r.FormValue("email")
-	pw := r.FormValue("password")
-
-	fail := func() {
-		renderAuthPage(w, r, http.StatusUnauthorized, "login.html", loginProps{
-			baseProps: newBaseProps(r),
-			Error:     "Invalid email or password.",
-		})
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid request.", http.StatusBadRequest)
+		return
 	}
 
-	user, err := s.store.GetUserByEmail(r.Context(), email)
+	fail := func() {
+		http.Error(w, "Invalid email or password.", http.StatusUnauthorized)
+	}
+
+	user, err := s.store.GetUserByEmail(r.Context(), body.Email)
 	if err != nil {
 		fail()
 		return
 	}
 
-	ok, err := password.Verify(pw, user.PasswordHash)
+	ok, err := password.Verify(body.Password, user.PasswordHash)
 	if err != nil || !ok {
 		fail()
 		return
 	}
 
 	s.sessions.Set(w, user.ID)
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	fmt.Fprint(w, "OK")
 }
 
 func (s *Server) logoutPost(w http.ResponseWriter, r *http.Request) {
 	s.sessions.Clear(w)
-	http.Redirect(w, r, "/login", http.StatusSeeOther)
+	w.WriteHeader(http.StatusNoContent)
 }

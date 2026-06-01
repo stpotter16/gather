@@ -183,6 +183,25 @@ Two tables: `activities` and `activity_votes`.
 
 ---
 
+## Client–server communication
+
+All state-mutating requests (POST/PUT/DELETE) send **JSON bodies** — not HTML form encoding.
+
+**Frontend pattern:**
+- Forms have no `method`/`action` attributes; a `<script nonce="{{ .CspNonce }}">` block intercepts submit
+- `fetch` options: `method`, `credentials: "include"`, `headers: {"Content-Type": "application/json"}`, `body: JSON.stringify({...})`
+- Errors (`!resp.ok`): `(await resp.text()).trim()` shown in a hidden error element (remove `hidden` class to display)
+- Success: parse `await resp.json()` for the created ID if needed, then `window.location.href = "..."` to navigate
+
+**Backend pattern:**
+- Decode with `json.NewDecoder(r.Body).Decode(&body)` — never `r.ParseForm()` / `r.FormValue()`
+- Validation failure: `http.Error(w, "Human-readable message.", http.StatusUnprocessableEntity)`
+- Created resource: `w.Header().Set("Content-Type", "application/json"); w.WriteHeader(http.StatusCreated); fmt.Fprintf(w, '{"id":%d}', id)`
+- No-content success: `w.WriteHeader(http.StatusNoContent)`
+- No server-side redirects from mutation handlers — the client navigates
+
+**CSRF:** `SameSite=Lax` on the session cookie is sufficient. JSON-only endpoints reject cross-origin form POSTs; no explicit CSRF tokens needed.
+
 ## Design conventions
 
 - **Accent:** amber (`bg-amber-500`, `text-amber-600`)

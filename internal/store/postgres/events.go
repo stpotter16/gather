@@ -3,9 +3,45 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/stpotter16/gather/internal/store"
 )
+
+func (s Store) CreateEvent(ctx context.Context, name, location, description string, startDate, endDate time.Time, createdBy int) (int, error) {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("beginning transaction: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	var desc *string
+	if description != "" {
+		desc = &description
+	}
+
+	var id int
+	err = tx.QueryRow(ctx,
+		`INSERT INTO events (name, start_date, end_date, location, description, created_by) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+		name, startDate, endDate, location, desc, createdBy,
+	).Scan(&id)
+	if err != nil {
+		return 0, fmt.Errorf("inserting event: %w", err)
+	}
+
+	_, err = tx.Exec(ctx,
+		`INSERT INTO event_members (event_id, user_id, status, invited_by, invited_at) VALUES ($1, $2, 'going', $2, NOW())`,
+		id, createdBy,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("inserting event member: %w", err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return 0, fmt.Errorf("committing transaction: %w", err)
+	}
+	return id, nil
+}
 
 func (s Store) GetEventsForUser(ctx context.Context, userID int) ([]store.EventSummary, error) {
 	rows, err := s.pool.Query(ctx, `

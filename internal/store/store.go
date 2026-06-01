@@ -34,4 +34,5 @@ type Store interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int) (User, error)
 	GetEventsForUser(ctx context.Context, userID int) ([]EventSummary, error)
+	CreateEvent(ctx context.Context, name, location, description string, startDate, endDate time.Time, createdBy int) (int, error)
 }
