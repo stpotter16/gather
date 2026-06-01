@@ -26,13 +26,13 @@ func (s *Server) loginPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password.", http.StatusUnauthorized)
 	}
 
-	user, err := s.store.GetUserByEmail(r.Context(), body.Email)
+	user, hash, err := s.store.GetUserByEmail(r.Context(), body.Email)
 	if err != nil {
 		fail()
 		return
 	}
 
-	ok, err := password.Verify(body.Password, user.PasswordHash)
+	ok, err := password.Verify(body.Password, hash)
 	if err != nil || !ok {
 		fail()
 		return

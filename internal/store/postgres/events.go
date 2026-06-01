@@ -82,7 +82,7 @@ func (s Store) GetEventsForUser(ctx context.Context, userID int) ([]store.EventS
 		return events, nil
 	}
 
-	// Fetch up to 4 going members per event for the avatar stack.
+	// Fetch all going members per event; handlers slice to the display limit.
 	memberRows, err := s.pool.Query(ctx, `
 		SELECT em.event_id, u.name, u.avatar_color
 		FROM event_members em

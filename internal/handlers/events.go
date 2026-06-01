@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/stpotter16/gather/internal/handlers/middleware"
 )
 
 func (s *Server) newEventGet(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +63,7 @@ func (s *Server) newEventPost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := newBaseProps(r).User
+	user, _ := middleware.UserFromContext(r.Context())
 	id, err := s.store.CreateEvent(r.Context(), name, location, description, startDate, endDate, user.ID)
 	if err != nil {
 		http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)

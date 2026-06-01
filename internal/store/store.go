@@ -6,11 +6,10 @@ import (
 )
 
 type User struct {
-	ID           int
-	Name         string
-	Email        string
-	AvatarColor  string
-	PasswordHash string
+	ID          int
+	Name        string
+	Email       string
+	AvatarColor string
 }
 
 type EventMember struct {
@@ -18,20 +17,26 @@ type EventMember struct {
 	AvatarColor string
 }
 
+type Event struct {
+	ID          int
+	Name        string
+	StartDate   time.Time
+	EndDate     time.Time
+	Location    string
+	Description string
+	CreatedBy   int
+}
+
 type EventSummary struct {
-	ID           int
-	Name         string
-	StartDate    time.Time
-	EndDate      time.Time
-	Location     string
+	Event
 	MemberCount  int
 	GoingCount   int
 	PendingCount int
-	Members      []EventMember // up to 4 going members, for avatar stack
+	Members      []EventMember // all going members; handlers slice to display limit
 }
 
 type Store interface {
-	GetUserByEmail(ctx context.Context, email string) (User, error)
+	GetUserByEmail(ctx context.Context, email string) (User, string, error)
 	GetUserByID(ctx context.Context, id int) (User, error)
 	GetEventsForUser(ctx context.Context, userID int) ([]EventSummary, error)
 	CreateEvent(ctx context.Context, name, location, description string, startDate, endDate time.Time, createdBy int) (int, error)

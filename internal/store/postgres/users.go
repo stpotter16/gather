@@ -19,26 +19,27 @@ func (s Store) CreateUser(ctx context.Context, name, email, avatarColor, passwor
 	return id, nil
 }
 
-func (s Store) GetUserByEmail(ctx context.Context, email string) (store.User, error) {
+func (s Store) GetUserByEmail(ctx context.Context, email string) (store.User, string, error) {
 	var u store.User
+	var hash string
 	err := s.pool.QueryRow(ctx, `
 		SELECT id, name, email, avatar_color, password_hash
 		FROM users
 		WHERE email = $1
-	`, email).Scan(&u.ID, &u.Name, &u.Email, &u.AvatarColor, &u.PasswordHash)
+	`, email).Scan(&u.ID, &u.Name, &u.Email, &u.AvatarColor, &hash)
 	if err != nil {
-		return store.User{}, fmt.Errorf("getting user by email: %w", err)
+		return store.User{}, "", fmt.Errorf("getting user by email: %w", err)
 	}
-	return u, nil
+	return u, hash, nil
 }
 
 func (s Store) GetUserByID(ctx context.Context, id int) (store.User, error) {
 	var u store.User
 	err := s.pool.QueryRow(ctx, `
-		SELECT id, name, email, avatar_color, password_hash
+		SELECT id, name, email, avatar_color
 		FROM users
 		WHERE id = $1
-	`, id).Scan(&u.ID, &u.Name, &u.Email, &u.AvatarColor, &u.PasswordHash)
+	`, id).Scan(&u.ID, &u.Name, &u.Email, &u.AvatarColor)
 	if err != nil {
 		return store.User{}, fmt.Errorf("getting user by ID: %w", err)
 	}
