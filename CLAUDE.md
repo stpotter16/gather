@@ -57,13 +57,21 @@ dev-scripts/                    shell scripts called by Makefile
 
 The core app is built and functional.
 
+### Must-fix (users will notice these gaps)
+
+**Change password** — Users are given a prepopulated password by the admin and need a way to change it. Needs:
+- `GET /account` — render a change-password form (current password, new password, confirm new password)
+- `POST /account/password` — verify current password with bcrypt, validate new password (min 8 chars), hash and store; return 204 on success, JS redirects to `/`
+- `UpdatePassword(ctx, userID int, hash string) error` → `UPDATE users SET password_hash = $1 WHERE id = $2`
+- Link in the nav (e.g. from the user avatar or a small "Account" link next to Sign out)
+
 ### Nice-to-have (app works without these)
 
-- **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
-- **Confirm an activity** — change status from `'idea'` to `'confirmed'`; needs `POST /events/{id}/activities/{activityID}/confirm` → `UPDATE activities SET status = 'confirmed'`
+- **Edit food restriction** — once saved, a user can't change their restriction; the upsert works but the form is hidden after first save
 - **Delete meal / dish / grocery** — no delete UI exists anywhere in the Meal Plan tab
-- **Edit food restriction** — once saved, a user can't change their restriction without re-saving (the upsert works, but the form is hidden after first save)
+- **Confirm an activity** — change status from `'idea'` to `'confirmed'`; needs `POST /events/{id}/activities/{activityID}/confirm` → `UPDATE activities SET status = 'confirmed'`
 - **Remove yourself from an event** — no leave/withdraw action
+- **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
 
 ### Out of scope for now
 - Flight number lookup via AviationStack (or similar) API — fields exist in the itinerary form, auto-fill is deferred

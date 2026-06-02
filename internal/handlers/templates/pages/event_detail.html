@@ -886,19 +886,33 @@
     var goingMembers = {{ .GoingMembersJSON }};
 
     // ── Tab switching ──
+    function activateTab(name) {
+      var validTabs = ["overview", "itineraries", "food", "activities"];
+      if (validTabs.indexOf(name) === -1) name = "overview";
+      document.querySelectorAll("[data-tab]").forEach(function (el) { el.classList.add("hidden"); });
+      document.getElementById("tab-" + name).classList.remove("hidden");
+      document.querySelectorAll("[data-tab-btn]").forEach(function (b) {
+        b.classList.remove("text-amber-600", "border-amber-500");
+        b.classList.add("text-stone-500", "border-transparent");
+      });
+      var activeBtn = document.querySelector("[data-tab-btn='" + name + "']");
+      if (activeBtn) {
+        activeBtn.classList.remove("text-stone-500", "border-transparent");
+        activeBtn.classList.add("text-amber-600", "border-amber-500");
+      }
+    }
+
     document.querySelectorAll("[data-tab-btn]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var name = btn.dataset.tabBtn;
-        document.querySelectorAll("[data-tab]").forEach(function (el) { el.classList.add("hidden"); });
-        document.getElementById("tab-" + name).classList.remove("hidden");
-        document.querySelectorAll("[data-tab-btn]").forEach(function (b) {
-          b.classList.remove("text-amber-600", "border-amber-500");
-          b.classList.add("text-stone-500", "border-transparent");
-        });
-        btn.classList.remove("text-stone-500", "border-transparent");
-        btn.classList.add("text-amber-600", "border-amber-500");
+        location.hash = name;
+        activateTab(name);
       });
     });
+
+    // Restore tab from URL hash on load
+    var initialTab = location.hash.replace("#", "");
+    activateTab(initialTab || "overview");
 
     // ── RSVP ──
     async function rsvp(status) {
