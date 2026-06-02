@@ -25,5 +25,7 @@ func (s *Server) addRoutes(mux *http.ServeMux) {
 	protected.HandleFunc("POST /events/{id}/meals/{mealID}/dishes", s.dishCreatePost)
 	protected.HandleFunc("POST /events/{id}/groceries", s.groceryCreatePost)
 	protected.HandleFunc("POST /events/{id}/groceries/{groceryID}/toggle", s.groceryTogglePost)
+	protected.HandleFunc("POST /events/{id}/activities", s.activityCreatePost)
+	protected.HandleFunc("POST /events/{id}/activities/{activityID}/vote", s.activityVotePost)
 	mux.Handle("/", middleware.RequireAuth(s.sessions, s.store, protected))
 }

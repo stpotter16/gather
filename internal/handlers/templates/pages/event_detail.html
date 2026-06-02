@@ -660,9 +660,109 @@
   </div>
 </div>
 
-<!-- ======= ACTIVITIES TAB (placeholder) ======= -->
-<div id="tab-activities" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
-  <p class="text-sm text-stone-400">Coming soon.</p>
+<!-- ======= ACTIVITIES TAB ======= -->
+<div id="tab-activities" data-tab class="hidden max-w-4xl mx-auto px-6 py-8 space-y-6">
+
+  {{ if .Confirmed }}
+  <section class="space-y-3">
+    <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Confirmed</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {{ range .Confirmed }}
+      <div class="bg-white rounded-xl border border-stone-200 p-4 flex flex-col gap-3">
+        <div>
+          <div class="flex items-start justify-between gap-2">
+            <span class="text-sm font-semibold text-stone-800">{{ .Name }}</span>
+            <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full shrink-0">On</span>
+          </div>
+          {{ if .Description }}<p class="text-xs text-stone-400 mt-1">{{ .Description }}</p>{{ end }}
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+                 style="background-color: {{ .SuggestedByColor }}">{{ .SuggestedBy | initial }}</div>
+            <span class="text-xs text-stone-400">{{ .SuggestedBy }}</span>
+          </div>
+          <button class="vote-btn flex items-center gap-1 text-xs font-medium {{ if .UserVoted }}text-amber-500{{ else }}text-stone-400 hover:text-amber-500{{ end }} transition-colors"
+                  data-activity-id="{{ .ID }}" data-voted="{{ .UserVoted }}">
+            <svg class="w-3.5 h-3.5" fill="{{ if .UserVoted }}currentColor{{ else }}none{{ end }}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.25a1.875 1.875 0 01-1.875-1.875 7.5 7.5 0 01.63-3.003" /></svg>
+            <span class="vote-count">{{ .VoteCount }}</span>
+          </button>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+  </section>
+  {{ end }}
+
+  <section class="space-y-3">
+    {{ if .Ideas }}
+    <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Ideas</h2>
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {{ range .Ideas }}
+      <div class="bg-white rounded-xl border border-stone-200 p-4 flex flex-col gap-3">
+        <div>
+          <span class="text-sm font-semibold text-stone-800">{{ .Name }}</span>
+          {{ if .Description }}<p class="text-xs text-stone-400 mt-1">{{ .Description }}</p>{{ end }}
+        </div>
+        <div class="flex items-center justify-between mt-auto">
+          <div class="flex items-center gap-1.5">
+            <div class="w-5 h-5 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+                 style="background-color: {{ .SuggestedByColor }}">{{ .SuggestedBy | initial }}</div>
+            <span class="text-xs text-stone-400">{{ .SuggestedBy }}</span>
+          </div>
+          <button class="vote-btn flex items-center gap-1 text-xs font-medium {{ if .UserVoted }}text-amber-500{{ else }}text-stone-400 hover:text-amber-500{{ end }} transition-colors"
+                  data-activity-id="{{ .ID }}" data-voted="{{ .UserVoted }}">
+            <svg class="w-3.5 h-3.5" fill="{{ if .UserVoted }}currentColor{{ else }}none{{ end }}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.5c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 012.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 00.322-1.672V3a.75.75 0 01.75-.75A2.25 2.25 0 0116.5 4.5c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 01-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 00-1.423-.23H5.25a1.875 1.875 0 01-1.875-1.875 7.5 7.5 0 01.63-3.003" /></svg>
+            <span class="vote-count">{{ .VoteCount }}</span>
+          </button>
+        </div>
+      </div>
+      {{ end }}
+
+      <button id="open-suggest" class="rounded-xl border-2 border-dashed border-stone-300 p-4 flex flex-col items-center justify-center gap-2 text-stone-400 hover:border-amber-400 hover:text-amber-600 transition-colors min-h-32">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        <span class="text-sm font-medium">Suggest an activity</span>
+      </button>
+    </div>
+    {{ else }}
+    <button id="open-suggest" class="w-full py-3 rounded-xl border-2 border-dashed border-stone-300 text-sm text-stone-400 hover:border-amber-400 hover:text-amber-600 transition-colors font-medium">
+      + Suggest an activity
+    </button>
+    {{ end }}
+  </section>
+
+</div>
+
+<!-- ======= SUGGEST ACTIVITY MODAL ======= -->
+<div id="suggest-backdrop" class="hidden fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-24 px-4 z-10">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+    <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-stone-900">Suggest an activity</h2>
+      <button id="close-suggest" class="text-stone-400 hover:text-stone-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-stone-700">Activity</label>
+        <input id="activity-name" type="text" placeholder="e.g. Morning hike"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-baseline justify-between">
+          <label class="text-sm font-medium text-stone-700">Details</label>
+          <span class="text-xs text-stone-400">Optional</span>
+        </div>
+        <textarea id="activity-description" rows="2" placeholder="Any notes or context…"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"></textarea>
+      </div>
+      <p id="suggest-error" class="hidden text-sm text-red-600"></p>
+    </div>
+    <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between">
+      <button id="cancel-suggest" class="text-sm text-stone-400 hover:text-stone-600">Cancel</button>
+      <button id="save-suggest" class="px-5 py-2.5 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">Suggest</button>
+    </div>
+  </div>
 </div>
 
 <script nonce="{{ .CspNonce }}">
@@ -864,6 +964,58 @@
         method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: name, date: date }),
+      });
+      if (!resp.ok) { errorEl.textContent = (await resp.text()).trim(); errorEl.classList.remove("hidden"); return; }
+      window.location.reload();
+    });
+
+    // ── Activities ──
+    document.querySelectorAll(".vote-btn").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var activityID = btn.dataset.activityId;
+        var voted      = btn.dataset.voted === "true";
+        var countEl    = btn.querySelector(".vote-count");
+        var svg        = btn.querySelector("svg");
+
+        // Optimistic update
+        var newVoted = !voted;
+        btn.dataset.voted = newVoted;
+        countEl.textContent = parseInt(countEl.textContent) + (newVoted ? 1 : -1);
+        svg.setAttribute("fill", newVoted ? "currentColor" : "none");
+        btn.classList.toggle("text-amber-500", newVoted);
+        btn.classList.toggle("text-stone-400", !newVoted);
+
+        var resp = await fetch("/events/" + eventID + "/activities/" + activityID + "/vote", {
+          method: "POST", credentials: "include",
+        });
+        if (!resp.ok) {
+          // Revert on failure
+          btn.dataset.voted = voted;
+          countEl.textContent = parseInt(countEl.textContent) + (newVoted ? -1 : 1);
+          svg.setAttribute("fill", voted ? "currentColor" : "none");
+          btn.classList.toggle("text-amber-500", voted);
+          btn.classList.toggle("text-stone-400", !voted);
+        }
+      });
+    });
+
+    var suggestBackdrop = document.getElementById("suggest-backdrop");
+    function openSuggest()  { suggestBackdrop.classList.remove("hidden"); document.getElementById("activity-name").focus(); }
+    function closeSuggest() { suggestBackdrop.classList.add("hidden"); }
+    document.querySelectorAll("#open-suggest").forEach(function (btn) { btn.addEventListener("click", openSuggest); });
+    document.getElementById("close-suggest").addEventListener("click",  closeSuggest);
+    document.getElementById("cancel-suggest").addEventListener("click", closeSuggest);
+    suggestBackdrop.addEventListener("click", function (e) { if (e.target === suggestBackdrop) closeSuggest(); });
+    document.getElementById("save-suggest").addEventListener("click", async function () {
+      var errorEl = document.getElementById("suggest-error");
+      errorEl.classList.add("hidden");
+      var name = document.getElementById("activity-name").value.trim();
+      var desc = document.getElementById("activity-description").value.trim();
+      if (!name) { errorEl.textContent = "Activity name is required."; errorEl.classList.remove("hidden"); return; }
+      var resp = await fetch("/events/" + eventID + "/activities", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name, description: desc }),
       });
       if (!resp.ok) { errorEl.textContent = (await resp.text()).trim(); errorEl.classList.remove("hidden"); return; }
       window.location.reload();

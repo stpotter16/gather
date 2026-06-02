@@ -51,6 +51,9 @@ type eventDetailProps struct {
 	InvitedBy             string
 	HasCurrentItinerary   bool
 	CurrentItineraryJSON  template.JS
+	// Activities
+	Confirmed  []store.Activity
+	Ideas      []store.Activity
 	// Meal plan
 	Restrictions         []store.FoodRestriction
 	MealDays             []mealDayView
@@ -154,6 +157,20 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 
 	currentItineraryJSON := buildItineraryJSON(currentMember)
 
+	activities, err := s.store.GetActivities(r.Context(), id, user.ID)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	var confirmed, ideas []store.Activity
+	for _, a := range activities {
+		if a.Status == "confirmed" {
+			confirmed = append(confirmed, a)
+		} else {
+			ideas = append(ideas, a)
+		}
+	}
+
 	mealPlan, err := s.store.GetMealPlanData(r.Context(), id)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
@@ -214,6 +231,8 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 		DeclinedCount:        len(declined),
 		CurrentStatus:        currentStatus,
 		InvitedBy:            invitedBy,
+		Confirmed:            confirmed,
+		Ideas:                ideas,
 		HasCurrentItinerary:  currentMember.HasItinerary,
 		CurrentItineraryJSON: currentItineraryJSON,
 		Restrictions:         mealPlan.Restrictions,
