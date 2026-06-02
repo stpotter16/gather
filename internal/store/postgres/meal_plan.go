@@ -196,6 +196,39 @@ func (s Store) ToggleGrocery(ctx context.Context, groceryID, eventID int) error 
 	return nil
 }
 
+func (s Store) DeleteMeal(ctx context.Context, mealID, eventID int) error {
+	_, err := s.pool.Exec(ctx,
+		`DELETE FROM meals WHERE id = $1 AND event_id = $2`,
+		mealID, eventID,
+	)
+	if err != nil {
+		return fmt.Errorf("deleting meal: %w", err)
+	}
+	return nil
+}
+
+func (s Store) DeleteDish(ctx context.Context, dishID, mealID int) error {
+	_, err := s.pool.Exec(ctx,
+		`DELETE FROM dishes WHERE id = $1 AND meal_id = $2`,
+		dishID, mealID,
+	)
+	if err != nil {
+		return fmt.Errorf("deleting dish: %w", err)
+	}
+	return nil
+}
+
+func (s Store) DeleteGrocery(ctx context.Context, groceryID, eventID int) error {
+	_, err := s.pool.Exec(ctx,
+		`DELETE FROM groceries WHERE id = $1 AND event_id = $2`,
+		groceryID, eventID,
+	)
+	if err != nil {
+		return fmt.Errorf("deleting grocery: %w", err)
+	}
+	return nil
+}
+
 func (s Store) AssignCook(ctx context.Context, mealID, userID int) error {
 	_, err := s.pool.Exec(ctx,
 		`INSERT INTO meal_assignments (meal_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,

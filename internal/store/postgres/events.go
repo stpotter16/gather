@@ -242,6 +242,17 @@ func (s Store) IsEventMember(ctx context.Context, eventID, userID int) (bool, er
 	return exists, nil
 }
 
+func (s Store) LeaveEvent(ctx context.Context, eventID, userID int) error {
+	_, err := s.pool.Exec(ctx,
+		`DELETE FROM event_members WHERE event_id = $1 AND user_id = $2`,
+		eventID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("leaving event: %w", err)
+	}
+	return nil
+}
+
 func (s Store) UpdateMemberStatus(ctx context.Context, eventID, userID int, status string) error {
 	_, err := s.pool.Exec(ctx,
 		`UPDATE event_members SET status = $1, responded_at = NOW() WHERE event_id = $2 AND user_id = $3`,

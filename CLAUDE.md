@@ -59,10 +59,6 @@ The core app is built and functional.
 
 ### Nice-to-have (app works without these)
 
-- **Edit food restriction** — once saved, a user can't change their restriction; the upsert works but the form is hidden after first save
-- **Delete meal / dish / grocery** — no delete UI exists anywhere in the Meal Plan tab
-- **Confirm an activity** — change status from `'idea'` to `'confirmed'`; needs `POST /events/{id}/activities/{activityID}/confirm` → `UPDATE activities SET status = 'confirmed'`
-- **Remove yourself from an event** — no leave/withdraw action
 - **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
 
 ### Out of scope for now

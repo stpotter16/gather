@@ -257,6 +257,44 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 	renderPage(w, r, http.StatusOK, "event_detail.html", props)
 }
 
+func (s *Server) eventLeaveDelete(w http.ResponseWriter, r *http.Request) {
+	id, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	user, _ := middleware.UserFromContext(r.Context())
+
+	detail, err := s.store.GetEventDetail(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+	if detail.CreatedBy == user.ID {
+		http.Error(w, "The host cannot leave their own event.", http.StatusForbidden)
+		return
+	}
+
+	isMember := false
+	for _, m := range detail.Members {
+		if m.UserID == user.ID {
+			isMember = true
+			break
+		}
+	}
+	if !isMember {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	if err := s.store.LeaveEvent(r.Context(), id, user.ID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) eventRSVPPost(w http.ResponseWriter, r *http.Request) {
 	id, ok := parseEventID(r)
 	if !ok {

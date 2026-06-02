@@ -183,4 +183,9 @@ type Store interface {
 	InviteUsers(ctx context.Context, eventID, inviterID int, userIDs []int) error
 	AssignCook(ctx context.Context, mealID, userID int) error
 	RemoveCook(ctx context.Context, mealID, userID int) error
+	DeleteMeal(ctx context.Context, mealID, eventID int) error
+	DeleteDish(ctx context.Context, dishID, mealID int) error
+	DeleteGrocery(ctx context.Context, groceryID, eventID int) error
+	ConfirmActivity(ctx context.Context, activityID, eventID int) error
+	LeaveEvent(ctx context.Context, eventID, userID int) error
 }

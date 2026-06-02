@@ -167,6 +167,80 @@ func (s *Server) groceryCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"id":` + strconv.Itoa(groceryID) + `}`))
 }
 
+func (s *Server) mealDeleteDelete(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	mealID, err := strconv.Atoi(r.PathValue("mealID"))
+	if err != nil || mealID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	if err := s.store.DeleteMeal(r.Context(), mealID, eventID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) dishDeleteDelete(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	mealID, err := strconv.Atoi(r.PathValue("mealID"))
+	if err != nil || mealID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	dishID, err := strconv.Atoi(r.PathValue("dishID"))
+	if err != nil || dishID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	if err := s.store.DeleteDish(r.Context(), dishID, mealID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) groceryDeleteDelete(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	groceryID, err := strconv.Atoi(r.PathValue("groceryID"))
+	if err != nil || groceryID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	if err := s.store.DeleteGrocery(r.Context(), groceryID, eventID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) cookAssignPost(w http.ResponseWriter, r *http.Request) {
 	eventID, ok := parseEventID(r)
 	if !ok {

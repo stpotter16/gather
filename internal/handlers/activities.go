@@ -46,6 +46,29 @@ func (s *Server) activityCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"id":` + strconv.Itoa(activityID) + `}`))
 }
 
+func (s *Server) activityConfirmPost(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	activityID, err := strconv.Atoi(r.PathValue("activityID"))
+	if err != nil || activityID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+	if err := s.store.ConfirmActivity(r.Context(), activityID, eventID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) activityVotePost(w http.ResponseWriter, r *http.Request) {
 	eventID, ok := parseEventID(r)
 	if !ok {

@@ -52,6 +52,17 @@ func (s Store) CreateActivity(ctx context.Context, eventID, userID int, name, de
 	return id, nil
 }
 
+func (s Store) ConfirmActivity(ctx context.Context, activityID, eventID int) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE activities SET status = 'confirmed' WHERE id = $1 AND event_id = $2`,
+		activityID, eventID,
+	)
+	if err != nil {
+		return fmt.Errorf("confirming activity: %w", err)
+	}
+	return nil
+}
+
 func (s Store) ToggleActivityVote(ctx context.Context, activityID, userID int) error {
 	tag, err := s.pool.Exec(ctx,
 		`DELETE FROM activity_votes WHERE activity_id = $1 AND user_id = $2`,
