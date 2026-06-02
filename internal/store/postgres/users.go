@@ -77,6 +77,17 @@ func (s Store) InviteUsers(ctx context.Context, eventID, inviterID int, userIDs 
 	return tx.Commit(ctx)
 }
 
+func (s Store) UpdatePassword(ctx context.Context, userID int, hash string) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE users SET password_hash = $1 WHERE id = $2`,
+		hash, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("updating password: %w", err)
+	}
+	return nil
+}
+
 func (s Store) GetUserByID(ctx context.Context, id int) (store.User, error) {
 	var u store.User
 	err := s.pool.QueryRow(ctx, `

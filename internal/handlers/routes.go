@@ -15,6 +15,8 @@ func (s *Server) addRoutes(mux *http.ServeMux) {
 
 	protected := http.NewServeMux()
 	protected.HandleFunc("GET /{$}", s.indexGet)
+	protected.HandleFunc("GET /account", s.accountGet)
+	protected.HandleFunc("POST /account/password", s.changePasswordPost)
 	protected.HandleFunc("GET /events/new", s.newEventGet)
 	protected.HandleFunc("POST /events/new", s.newEventPost)
 	protected.HandleFunc("GET /events/{id}", s.eventDetailGet)

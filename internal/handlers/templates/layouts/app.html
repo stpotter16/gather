@@ -4,6 +4,7 @@
     <a href="/" class="text-lg font-bold text-stone-900 tracking-tight">Gather</a>
     {{ block "nav-right" . }}
     <div class="flex items-center gap-3">
+      <a href="/account" class="text-sm text-stone-400 hover:text-stone-600 transition-colors">Account</a>
       <button id="logout-btn" class="text-sm text-stone-400 hover:text-stone-600 transition-colors">Sign out</button>
       <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
            style="background-color: {{ .User.AvatarColor }}">
