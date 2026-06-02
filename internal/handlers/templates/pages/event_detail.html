@@ -475,9 +475,189 @@
   </div>
 </div>
 
-<!-- ======= MEAL PLAN TAB (placeholder) ======= -->
-<div id="tab-food" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
-  <p class="text-sm text-stone-400">Coming soon.</p>
+<!-- ======= MEAL PLAN TAB ======= -->
+<div id="tab-food" data-tab class="hidden max-w-4xl mx-auto px-6 py-8 space-y-6">
+
+  <div class="flex justify-end">
+    <button id="open-groceries" class="flex items-center gap-2 px-3.5 py-2 rounded-lg border border-stone-300 text-sm font-medium text-stone-600 hover:bg-stone-50 transition-colors">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.853-7.156a60.026 60.026 0 00-16.538-1.684l.256.977m0 0a3 3 0 013 3m0 0h6.75" /></svg>
+      Groceries
+    </button>
+  </div>
+
+  <!-- Food restrictions -->
+  <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+    <div class="px-5 py-4 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-stone-700">Food restrictions</h2>
+      {{ if not .HasRestriction }}
+      <button id="show-restriction-form" class="text-sm text-amber-600 font-medium hover:text-amber-700">+ Add yours</button>
+      {{ end }}
+    </div>
+    {{ range .Restrictions }}
+    <div class="px-5 py-3 flex items-center gap-3">
+      <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+           style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+      <span class="text-sm text-stone-800 flex-1">{{ .Name }}</span>
+      <span class="text-sm text-stone-500">{{ .Restriction }}</span>
+    </div>
+    {{ end }}
+    <div id="restriction-form" class="hidden px-5 py-3">
+      <div class="flex gap-2">
+        <input id="restriction-input" type="text" placeholder="e.g. Vegetarian, nut allergy…"
+          class="flex-1 px-3 py-2 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+        <button id="save-restriction" class="px-3 py-2 rounded-lg bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors">Save</button>
+        {{ if not .HasRestriction }}<button id="cancel-restriction" class="px-3 py-2 text-sm text-stone-400 hover:text-stone-600">Cancel</button>{{ end }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Meals by day -->
+  {{ range .MealDays }}
+  <section class="space-y-3">
+    <h2 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">{{ .Label }}</h2>
+    {{ range .Meals }}
+    <div class="bg-white rounded-xl border border-stone-200">
+      <div class="px-5 py-3 border-b border-stone-100">
+        <span class="text-sm font-semibold text-stone-700">{{ .Name }}</span>
+      </div>
+      <div class="divide-y divide-stone-100">
+        <div class="px-5 py-3 flex items-center gap-3">
+          <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
+          {{ if .Cooks }}
+          <div class="flex items-center gap-2">
+            <div class="flex -space-x-1.5">
+              {{ range .Cooks }}
+              <div class="w-6 h-6 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold"
+                   style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+              {{ end }}
+            </div>
+            <span class="text-xs text-stone-500">{{ .Cooks | cookNames }}</span>
+          </div>
+          {{ else }}
+          <span class="text-xs text-stone-400 italic">No one assigned</span>
+          {{ end }}
+        </div>
+        <div class="px-5 py-2.5 flex flex-wrap items-center gap-1.5">
+          <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
+          {{ range .Dishes }}
+          <span class="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md">{{ .Name }}</span>
+          {{ end }}
+          <button class="dish-add-btn text-xs text-stone-400 hover:text-amber-600 px-2 py-1 rounded-md border border-dashed border-stone-300 hover:border-amber-400 transition-colors"
+                  data-meal-id="{{ .ID }}">+ Add</button>
+        </div>
+        <div class="dish-add-form hidden px-5 py-2.5 flex gap-2" data-meal-id="{{ .ID }}">
+          <input type="text" placeholder="Dish name"
+            class="dish-name-input flex-1 px-3 py-1.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+          <button class="dish-save-btn px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-medium hover:bg-amber-600"
+                  data-meal-id="{{ .ID }}">Add</button>
+          <button class="dish-cancel-btn px-2 py-1.5 text-xs text-stone-400 hover:text-stone-600"
+                  data-meal-id="{{ .ID }}">Cancel</button>
+        </div>
+      </div>
+    </div>
+    {{ end }}
+  </section>
+  {{ end }}
+
+  <button id="open-add-meal" class="w-full py-3 rounded-xl border-2 border-dashed border-stone-300 text-sm text-stone-400 hover:border-amber-400 hover:text-amber-600 transition-colors font-medium">
+    + Add a meal
+  </button>
+
+</div>
+
+<!-- ======= GROCERY PANEL ======= -->
+<div id="grocery-backdrop" class="hidden fixed inset-0 bg-stone-900/20 z-20"></div>
+<aside id="grocery-panel" class="fixed top-0 right-0 h-full w-80 bg-white border-l border-stone-200 shadow-xl z-30 translate-x-full transition-transform duration-200 flex flex-col">
+  <div class="px-5 py-4 border-b border-stone-100 flex items-center justify-between">
+    <h2 class="text-base font-semibold text-stone-900">Groceries</h2>
+    <button id="close-groceries" class="text-stone-400 hover:text-stone-600">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto divide-y divide-stone-100">
+
+    <div class="px-5 py-4 space-y-3">
+      <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">To buy</h3>
+      <div class="space-y-2">
+        {{ range .ToBuy }}
+        <div class="grocery-item flex items-center gap-2">
+          <input type="checkbox" {{ if .IsChecked }}checked{{ end }}
+            class="grocery-check rounded border-stone-300 text-amber-500 focus:ring-amber-400"
+            data-grocery-id="{{ .ID }}" />
+          <span class="grocery-label flex-1 text-sm {{ if .IsChecked }}line-through text-stone-400{{ else }}text-stone-700{{ end }}">{{ .Name }}</span>
+        </div>
+        {{ end }}
+      </div>
+      <div id="buy-add-form" class="hidden flex gap-2">
+        <input type="text" id="buy-input" placeholder="Item name"
+          class="flex-1 px-3 py-1.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+        <button id="buy-save" class="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-medium">Add</button>
+      </div>
+      <button id="show-buy-input" class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        Add item
+      </button>
+    </div>
+
+    <div class="px-5 py-4 space-y-3">
+      <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">To bring</h3>
+      <div class="space-y-2.5">
+        {{ range .ToBring }}
+        <div class="grocery-item flex items-center gap-2">
+          <input type="checkbox" {{ if .IsChecked }}checked{{ end }}
+            class="grocery-check rounded border-stone-300 text-amber-500 focus:ring-amber-400 shrink-0"
+            data-grocery-id="{{ .ID }}" />
+          <span class="grocery-label flex-1 text-sm {{ if .IsChecked }}line-through text-stone-400{{ else }}text-stone-700{{ end }}">{{ .Name }}</span>
+          {{ if .AssignedName }}
+          <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+               style="background-color: {{ .AssignedColor }}">{{ .AssignedName | initial }}</div>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+      <div id="bring-add-form" class="hidden flex gap-2">
+        <input type="text" id="bring-input" placeholder="Item name"
+          class="flex-1 px-3 py-1.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+        <button id="bring-save" class="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-medium">Add</button>
+      </div>
+      <button id="show-bring-input" class="flex items-center gap-1.5 text-sm text-stone-400 hover:text-amber-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+        Add item
+      </button>
+    </div>
+
+  </div>
+</aside>
+
+<!-- ======= ADD MEAL MODAL ======= -->
+<div id="add-meal-backdrop" class="hidden fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-24 px-4 z-10">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+    <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-stone-900">Add a meal</h2>
+      <button id="close-add-meal" class="text-stone-400 hover:text-stone-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+    <div class="px-6 py-5 space-y-4">
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-stone-700">Name</label>
+        <input id="meal-name" type="text" placeholder="e.g. 4th of July BBQ"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+      </div>
+      <div class="space-y-1.5">
+        <label class="text-sm font-medium text-stone-700">Date</label>
+        <input id="meal-date" type="date"
+          min="{{ .Detail.StartDate.Format "2006-01-02" }}"
+          max="{{ .Detail.EndDate.Format "2006-01-02" }}"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+      </div>
+      <p id="meal-error" class="hidden text-sm text-red-600"></p>
+    </div>
+    <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between">
+      <button id="cancel-add-meal" class="text-sm text-stone-400 hover:text-stone-600">Cancel</button>
+      <button id="save-meal" class="px-5 py-2.5 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">Add meal</button>
+    </div>
+  </div>
 </div>
 
 <!-- ======= ACTIVITIES TAB (placeholder) ======= -->
@@ -574,6 +754,119 @@
 
     document.querySelectorAll(".itin-mode-btn").forEach(function (btn) {
       btn.addEventListener("click", function () { setMode(btn.dataset.leg, btn.dataset.mode); });
+    });
+
+    // ── Grocery panel ──
+    var groceryPanel    = document.getElementById("grocery-panel");
+    var groceryBackdrop = document.getElementById("grocery-backdrop");
+    function openGroceries()  { groceryPanel.classList.remove("translate-x-full"); groceryBackdrop.classList.remove("hidden"); }
+    function closeGroceries() { groceryPanel.classList.add("translate-x-full");    groceryBackdrop.classList.add("hidden"); }
+    document.getElementById("open-groceries").addEventListener("click", openGroceries);
+    document.getElementById("close-groceries").addEventListener("click", closeGroceries);
+    groceryBackdrop.addEventListener("click", closeGroceries);
+
+    // Grocery checkboxes (optimistic)
+    document.querySelectorAll(".grocery-check").forEach(function (cb) {
+      cb.addEventListener("change", function () {
+        var label = cb.closest(".grocery-item").querySelector(".grocery-label");
+        label.classList.toggle("line-through", cb.checked);
+        label.classList.toggle("text-stone-400", cb.checked);
+        label.classList.toggle("text-stone-700", !cb.checked);
+        fetch("/events/" + eventID + "/groceries/" + cb.dataset.groceryId + "/toggle", {
+          method: "POST", credentials: "include",
+        });
+      });
+    });
+
+    // Grocery add items
+    function setupGroceryAdd(showBtnID, formID, inputID, saveBtnID, category) {
+      document.getElementById(showBtnID).addEventListener("click", function () {
+        document.getElementById(formID).classList.remove("hidden");
+        document.getElementById(inputID).focus();
+      });
+      document.getElementById(saveBtnID).addEventListener("click", async function () {
+        var name = document.getElementById(inputID).value.trim();
+        if (!name) return;
+        var resp = await fetch("/events/" + eventID + "/groceries", {
+          method: "POST", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name, category: category }),
+        });
+        if (resp.ok) window.location.reload();
+      });
+    }
+    setupGroceryAdd("show-buy-input",   "buy-add-form",   "buy-input",   "buy-save",   "buy");
+    setupGroceryAdd("show-bring-input", "bring-add-form", "bring-input", "bring-save", "bring");
+
+    // ── Food restriction ──
+    var showRR = document.getElementById("show-restriction-form");
+    if (showRR) showRR.addEventListener("click", function () {
+      document.getElementById("restriction-form").classList.remove("hidden");
+      document.getElementById("restriction-input").focus();
+    });
+    var cancelRR = document.getElementById("cancel-restriction");
+    if (cancelRR) cancelRR.addEventListener("click", function () {
+      document.getElementById("restriction-form").classList.add("hidden");
+    });
+    document.getElementById("save-restriction").addEventListener("click", async function () {
+      var val = document.getElementById("restriction-input").value.trim();
+      if (!val) return;
+      var resp = await fetch("/events/" + eventID + "/food-restrictions", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ restriction: val }),
+      });
+      if (resp.ok) window.location.reload();
+    });
+
+    // ── Dishes ──
+    document.querySelectorAll(".dish-add-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var mealID = btn.dataset.mealId;
+        document.querySelector(".dish-add-form[data-meal-id='" + mealID + "']").classList.remove("hidden");
+      });
+    });
+    document.querySelectorAll(".dish-cancel-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelector(".dish-add-form[data-meal-id='" + btn.dataset.mealId + "']").classList.add("hidden");
+      });
+    });
+    document.querySelectorAll(".dish-save-btn").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        var mealID = btn.dataset.mealId;
+        var input  = document.querySelector(".dish-add-form[data-meal-id='" + mealID + "'] .dish-name-input");
+        var name = input.value.trim();
+        if (!name) return;
+        var resp = await fetch("/events/" + eventID + "/meals/" + mealID + "/dishes", {
+          method: "POST", credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name }),
+        });
+        if (resp.ok) window.location.reload();
+      });
+    });
+
+    // ── Add meal modal ──
+    var addMealBackdrop = document.getElementById("add-meal-backdrop");
+    function openAddMeal()  { addMealBackdrop.classList.remove("hidden"); document.getElementById("meal-name").focus(); }
+    function closeAddMeal() { addMealBackdrop.classList.add("hidden"); }
+    document.getElementById("open-add-meal").addEventListener("click", openAddMeal);
+    document.getElementById("close-add-meal").addEventListener("click", closeAddMeal);
+    document.getElementById("cancel-add-meal").addEventListener("click", closeAddMeal);
+    addMealBackdrop.addEventListener("click", function (e) { if (e.target === addMealBackdrop) closeAddMeal(); });
+    document.getElementById("save-meal").addEventListener("click", async function () {
+      var errorEl = document.getElementById("meal-error");
+      errorEl.classList.add("hidden");
+      var name = document.getElementById("meal-name").value.trim();
+      var date = document.getElementById("meal-date").value;
+      if (!name || !date) { errorEl.textContent = "Name and date are required."; errorEl.classList.remove("hidden"); return; }
+      var resp = await fetch("/events/" + eventID + "/meals", {
+        method: "POST", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: name, date: date }),
+      });
+      if (!resp.ok) { errorEl.textContent = (await resp.text()).trim(); errorEl.classList.remove("hidden"); return; }
+      window.location.reload();
     });
 
     document.getElementById("itin-save").addEventListener("click", async function () {

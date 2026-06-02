@@ -215,6 +215,18 @@ func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDeta
 	return d, nil
 }
 
+func (s Store) IsEventMember(ctx context.Context, eventID, userID int) (bool, error) {
+	var exists bool
+	err := s.pool.QueryRow(ctx,
+		`SELECT EXISTS (SELECT 1 FROM event_members WHERE event_id = $1 AND user_id = $2)`,
+		eventID, userID,
+	).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("checking event membership: %w", err)
+	}
+	return exists, nil
+}
+
 func (s Store) UpdateMemberStatus(ctx context.Context, eventID, userID int, status string) error {
 	_, err := s.pool.Exec(ctx,
 		`UPDATE event_members SET status = $1, responded_at = NOW() WHERE event_id = $2 AND user_id = $3`,

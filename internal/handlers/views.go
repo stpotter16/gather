@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/stpotter16/gather/internal/handlers/middleware"
@@ -29,6 +30,16 @@ var templateFuncs = template.FuncMap{
 			return rawURL
 		}
 		return u.Hostname()
+	},
+	"cookNames": func(cooks []store.MealCook) string {
+		names := make([]string, len(cooks))
+		for i, c := range cooks {
+			parts := strings.Fields(c.Name)
+			if len(parts) > 0 {
+				names[i] = parts[0]
+			}
+		}
+		return strings.Join(names, ", ")
 	},
 	"formatTime": func(s string) string {
 		if s == "" {

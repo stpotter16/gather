@@ -27,6 +27,11 @@ type memberView struct {
 	InvitedAgo  string
 }
 
+type mealDayView struct {
+	Label string // e.g. "Saturday · Jul 4"
+	Meals []store.Meal
+}
+
 type eventDetailProps struct {
 	baseProps
 	Detail               store.EventDetail
@@ -46,6 +51,13 @@ type eventDetailProps struct {
 	InvitedBy             string
 	HasCurrentItinerary   bool
 	CurrentItineraryJSON  template.JS
+	// Meal plan
+	Restrictions         []store.FoodRestriction
+	MealDays             []mealDayView
+	ToBuy                []store.GroceryItem
+	ToBring              []store.GroceryItem
+	CurrentRestriction   string
+	HasRestriction       bool
 }
 
 func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
@@ -142,6 +154,49 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 
 	currentItineraryJSON := buildItineraryJSON(currentMember)
 
+	mealPlan, err := s.store.GetMealPlanData(r.Context(), id)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	// Group meals by day
+	var mealDays []mealDayView
+	dayIndex := make(map[string]int)
+	for _, m := range mealPlan.Meals {
+		key := m.Date.Format("2006-01-02")
+		idx, ok := dayIndex[key]
+		if !ok {
+			idx = len(mealDays)
+			dayIndex[key] = idx
+			mealDays = append(mealDays, mealDayView{
+				Label: m.Date.Format("Monday · Jan 2"),
+			})
+		}
+		mealDays[idx].Meals = append(mealDays[idx].Meals, m)
+	}
+
+	// Split groceries by category
+	var toBuy, toBring []store.GroceryItem
+	for _, g := range mealPlan.Groceries {
+		if g.Category == "buy" {
+			toBuy = append(toBuy, g)
+		} else {
+			toBring = append(toBring, g)
+		}
+	}
+
+	// Find current user's food restriction
+	var currentRestriction string
+	hasRestriction := false
+	for _, rr := range mealPlan.Restrictions {
+		if rr.UserID == user.ID {
+			currentRestriction = rr.Restriction
+			hasRestriction = true
+			break
+		}
+	}
+
 	props := eventDetailProps{
 		baseProps:            newBaseProps(r),
 		Detail:               detail,
@@ -161,6 +216,12 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 		InvitedBy:            invitedBy,
 		HasCurrentItinerary:  currentMember.HasItinerary,
 		CurrentItineraryJSON: currentItineraryJSON,
+		Restrictions:         mealPlan.Restrictions,
+		MealDays:             mealDays,
+		ToBuy:                toBuy,
+		ToBring:              toBring,
+		CurrentRestriction:   currentRestriction,
+		HasRestriction:       hasRestriction,
 	}
 
 	renderPage(w, r, http.StatusOK, "event_detail.html", props)

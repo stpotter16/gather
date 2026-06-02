@@ -101,12 +101,59 @@ type ItineraryInput struct {
 	DepartureDetails      string `json:"departure_details"`
 }
 
+type FoodRestriction struct {
+	UserID      int
+	Name        string
+	AvatarColor string
+	Restriction string
+}
+
+type MealCook struct {
+	Name        string
+	AvatarColor string
+}
+
+type Dish struct {
+	ID   int
+	Name string
+}
+
+type Meal struct {
+	ID     int
+	Name   string
+	Date   time.Time
+	Cooks  []MealCook
+	Dishes []Dish
+}
+
+type GroceryItem struct {
+	ID            int
+	Name          string
+	Category      string
+	AssignedName  string
+	AssignedColor string
+	IsChecked     bool
+}
+
+type MealPlanData struct {
+	Restrictions []FoodRestriction
+	Meals        []Meal
+	Groceries    []GroceryItem
+}
+
 type Store interface {
 	GetUserByEmail(ctx context.Context, email string) (User, string, error)
 	GetUserByID(ctx context.Context, id int) (User, error)
 	GetEventsForUser(ctx context.Context, userID int) ([]EventSummary, error)
 	CreateEvent(ctx context.Context, name, location, description string, startDate, endDate time.Time, createdBy int) (int, error)
 	GetEventDetail(ctx context.Context, eventID int) (EventDetail, error)
+	IsEventMember(ctx context.Context, eventID, userID int) (bool, error)
 	UpdateMemberStatus(ctx context.Context, eventID, userID int, status string) error
 	UpsertItinerary(ctx context.Context, eventID, userID int, input ItineraryInput) error
+	GetMealPlanData(ctx context.Context, eventID int) (MealPlanData, error)
+	UpsertFoodRestriction(ctx context.Context, eventID, userID int, restriction string) error
+	CreateMeal(ctx context.Context, eventID int, name string, date time.Time) (int, error)
+	AddDish(ctx context.Context, mealID int, name string) (int, error)
+	AddGrocery(ctx context.Context, eventID int, name, category string) (int, error)
+	ToggleGrocery(ctx context.Context, groceryID, eventID int) error
 }
