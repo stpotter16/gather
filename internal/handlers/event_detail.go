@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"time"
@@ -28,21 +29,23 @@ type memberView struct {
 
 type eventDetailProps struct {
 	baseProps
-	Detail        store.EventDetail
-	DateRange     string
-	DayCount      int
-	TimelineCols  []string
-	TimelineRows  []timelineRow
-	HeaderAvatars []memberView
-	HeaderExtra   int
-	Going         []memberView
-	Pending       []memberView
-	Declined      []memberView
-	GoingCount    int
-	PendingCount  int
-	DeclinedCount int
-	CurrentStatus string
-	InvitedBy     string
+	Detail               store.EventDetail
+	DateRange            string
+	DayCount             int
+	TimelineCols         []string
+	TimelineRows         []timelineRow
+	HeaderAvatars        []memberView
+	HeaderExtra          int
+	Going                []memberView
+	Pending              []memberView
+	Declined             []memberView
+	GoingCount           int
+	PendingCount         int
+	DeclinedCount        int
+	CurrentStatus         string
+	InvitedBy             string
+	HasCurrentItinerary   bool
+	CurrentItineraryJSON  template.JS
 }
 
 func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
@@ -65,12 +68,14 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 	user, _ := middleware.UserFromContext(r.Context())
 
 	var currentStatus, invitedBy string
+	var currentMember store.EventDetailMember
 	isMember := false
 	for _, m := range detail.Members {
 		if m.UserID == user.ID {
 			isMember = true
 			currentStatus = m.Status
 			invitedBy = m.InvitedByName
+			currentMember = m
 			break
 		}
 	}
@@ -135,23 +140,27 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 		headerExtra = len(going) - maxHeaderAvatars
 	}
 
+	currentItineraryJSON := buildItineraryJSON(currentMember)
+
 	props := eventDetailProps{
-		baseProps:     newBaseProps(r),
-		Detail:        detail,
-		DateRange:     formatDateRange(detail.StartDate, detail.EndDate),
-		DayCount:      duration,
-		TimelineCols:  timelineCols,
-		TimelineRows:  timelineRows,
-		HeaderAvatars: headerAvatars,
-		HeaderExtra:   headerExtra,
-		Going:         going,
-		Pending:       pending,
-		Declined:      declined,
-		GoingCount:    len(going),
-		PendingCount:  len(pending),
-		DeclinedCount: len(declined),
-		CurrentStatus: currentStatus,
-		InvitedBy:     invitedBy,
+		baseProps:            newBaseProps(r),
+		Detail:               detail,
+		DateRange:            formatDateRange(detail.StartDate, detail.EndDate),
+		DayCount:             duration,
+		TimelineCols:         timelineCols,
+		TimelineRows:         timelineRows,
+		HeaderAvatars:        headerAvatars,
+		HeaderExtra:          headerExtra,
+		Going:                going,
+		Pending:              pending,
+		Declined:             declined,
+		GoingCount:           len(going),
+		PendingCount:         len(pending),
+		DeclinedCount:        len(declined),
+		CurrentStatus:        currentStatus,
+		InvitedBy:            invitedBy,
+		HasCurrentItinerary:  currentMember.HasItinerary,
+		CurrentItineraryJSON: currentItineraryJSON,
 	}
 
 	renderPage(w, r, http.StatusOK, "event_detail.html", props)
@@ -178,6 +187,28 @@ func (s *Server) eventRSVPPost(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := middleware.UserFromContext(r.Context())
 	if err := s.store.UpdateMemberStatus(r.Context(), id, user.ID, body.Status); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) itineraryUpsertPut(w http.ResponseWriter, r *http.Request) {
+	id, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+
+	var input store.ItineraryInput
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "Invalid request.", http.StatusBadRequest)
+		return
+	}
+
+	user, _ := middleware.UserFromContext(r.Context())
+	if err := s.store.UpsertItinerary(r.Context(), id, user.ID, input); err != nil {
 		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
@@ -218,4 +249,64 @@ func invitedAgo(t time.Time) string {
 	default:
 		return fmt.Sprintf("Invited %d days ago", days)
 	}
+}
+
+// buildItineraryJSON serialises the current user's itinerary for modal pre-population.
+func buildItineraryJSON(m store.EventDetailMember) template.JS {
+	type itinData struct {
+		HasItinerary          bool   `json:"hasItinerary"`
+		ArrivalMode           string `json:"arrival_mode"`
+		ArrivalDate           string `json:"arrival_date"`
+		ArrivalTime           string `json:"arrival_time"`
+		ArrivalFlightNumber   string `json:"arrival_flight_number"`
+		ArrivalAirline        string `json:"arrival_airline"`
+		ArrivalOrigin         string `json:"arrival_origin"`
+		ArrivalDestination    string `json:"arrival_destination"`
+		ArrivalDetails        string `json:"arrival_details"`
+		DepartureMode         string `json:"departure_mode"`
+		DepartureDate         string `json:"departure_date"`
+		DepartureTime         string `json:"departure_time"`
+		DepartureFlightNumber string `json:"departure_flight_number"`
+		DepartureAirline      string `json:"departure_airline"`
+		DepartureOrigin       string `json:"departure_origin"`
+		DepartureDestination  string `json:"departure_destination"`
+		DepartureDetails      string `json:"departure_details"`
+	}
+
+	timeToInput := func(t *time.Time) string {
+		if t == nil {
+			return ""
+		}
+		return t.Format("2006-01-02")
+	}
+	// Strip seconds from "HH:MM:SS" → "HH:MM" for <input type="time">
+	trimSecs := func(s string) string {
+		if len(s) >= 5 {
+			return s[:5]
+		}
+		return s
+	}
+
+	d := itinData{
+		HasItinerary:          m.HasItinerary,
+		ArrivalMode:           m.ArrivalMode,
+		ArrivalDate:           timeToInput(m.ArrivalDate),
+		ArrivalTime:           trimSecs(m.ArrivalTime),
+		ArrivalFlightNumber:   m.ArrivalFlightNumber,
+		ArrivalAirline:        m.ArrivalAirline,
+		ArrivalOrigin:         m.ArrivalOrigin,
+		ArrivalDestination:    m.ArrivalDestination,
+		ArrivalDetails:        m.ArrivalDetails,
+		DepartureMode:         m.DepartureMode,
+		DepartureDate:         timeToInput(m.DepartureDate),
+		DepartureTime:         trimSecs(m.DepartureTime),
+		DepartureFlightNumber: m.DepartureFlightNumber,
+		DepartureAirline:      m.DepartureAirline,
+		DepartureOrigin:       m.DepartureOrigin,
+		DepartureDestination:  m.DepartureDestination,
+		DepartureDetails:      m.DepartureDetails,
+	}
+
+	b, _ := json.Marshal(d)
+	return template.JS(b)
 }

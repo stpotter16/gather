@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/stpotter16/gather/internal/handlers/middleware"
 	"github.com/stpotter16/gather/internal/store"
@@ -28,6 +29,16 @@ var templateFuncs = template.FuncMap{
 			return rawURL
 		}
 		return u.Hostname()
+	},
+	"formatTime": func(s string) string {
+		if s == "" {
+			return ""
+		}
+		t, err := time.Parse("15:04:05", s)
+		if err != nil {
+			return s
+		}
+		return t.Format("3:04 pm")
 	},
 }
 

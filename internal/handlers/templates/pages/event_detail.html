@@ -218,9 +218,261 @@
 
 </div>
 
-<!-- ======= ITINERARIES TAB (placeholder) ======= -->
-<div id="tab-itineraries" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
-  <p class="text-sm text-stone-400">Coming soon.</p>
+<!-- ======= ITINERARIES TAB ======= -->
+<div id="tab-itineraries" data-tab class="hidden max-w-4xl mx-auto px-6 py-8 space-y-6">
+  <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+
+    <div class="px-5 py-4 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-stone-700">Travel Details</h2>
+      <button id="open-itinerary-modal" class="text-sm text-amber-600 font-medium hover:text-amber-700">
+        + {{ if .HasCurrentItinerary }}Edit mine{{ else }}Add mine{{ end }}
+      </button>
+    </div>
+
+    {{ range .Going }}
+    <div class="px-5 py-4">
+      <div class="flex items-center justify-between gap-2 mb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+               style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+          <span class="text-sm font-medium text-stone-800">{{ .Name }}</span>
+        </div>
+        {{ if not .HasItinerary }}<span class="text-xs text-stone-400 italic">No itinerary yet</span>{{ end }}
+      </div>
+
+      {{ if .HasItinerary }}
+      <div class="ml-9 space-y-2">
+
+        {{ if .ArrivalMode }}
+        <div class="flex items-start gap-3">
+          <span class="text-xs font-medium text-emerald-600 w-16 shrink-0 pt-0.5">Arriving</span>
+          <div>
+            <div class="text-sm text-stone-700">
+              {{ if .ArrivalDate }}{{ .ArrivalDate.Format "Jan 2" }}{{ end }}
+              {{ if .ArrivalTime }} &middot; {{ .ArrivalTime | formatTime }}{{ end }}
+            </div>
+            <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+              {{ if eq .ArrivalMode "flying" }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying{{ if .ArrivalFlightNumber }} &middot; {{ .ArrivalFlightNumber }}{{ end }}{{ if .ArrivalOrigin }} &middot; {{ .ArrivalOrigin }}{{ if .ArrivalDestination }} → {{ .ArrivalDestination }}{{ end }}{{ end }}
+              {{ else if eq .ArrivalMode "driving" }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Driving{{ if .ArrivalOrigin }} from {{ .ArrivalOrigin }}{{ end }}{{ if .ArrivalDetails }} &middot; {{ .ArrivalDetails }}{{ end }}
+              {{ else }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                {{ if .ArrivalDetails }}{{ .ArrivalDetails }}{{ else }}Other{{ end }}
+              {{ end }}
+            </div>
+          </div>
+        </div>
+        {{ end }}
+
+        {{ if .DepartureMode }}
+        <div class="flex items-start gap-3">
+          <span class="text-xs font-medium text-rose-500 w-16 shrink-0 pt-0.5">Leaving</span>
+          <div>
+            <div class="text-sm text-stone-700">
+              {{ if .DepartureDate }}{{ .DepartureDate.Format "Jan 2" }}{{ end }}
+              {{ if .DepartureTime }} &middot; {{ .DepartureTime | formatTime }}{{ end }}
+            </div>
+            <div class="text-xs text-stone-400 mt-0.5 flex items-center gap-1">
+              {{ if eq .DepartureMode "flying" }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
+                Flying{{ if .DepartureFlightNumber }} &middot; {{ .DepartureFlightNumber }}{{ end }}{{ if .DepartureOrigin }} &middot; {{ .DepartureOrigin }}{{ if .DepartureDestination }} → {{ .DepartureDestination }}{{ end }}{{ end }}
+              {{ else if eq .DepartureMode "driving" }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>
+                Driving{{ if .DepartureOrigin }} from {{ .DepartureOrigin }}{{ end }}{{ if .DepartureDetails }} &middot; {{ .DepartureDetails }}{{ end }}
+              {{ else }}
+                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                {{ if .DepartureDetails }}{{ .DepartureDetails }}{{ else }}Other{{ end }}
+              {{ end }}
+            </div>
+          </div>
+        </div>
+        {{ end }}
+
+      </div>
+      {{ end }}
+    </div>
+    {{ end }}
+
+  </div>
+</div>
+
+<!-- ======= ITINERARY MODAL ======= -->
+<div id="itinerary-backdrop" class="hidden fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-16 px-4 z-10">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+
+    <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+      <div>
+        <h2 class="text-base font-semibold text-stone-900">Your itinerary</h2>
+        <p class="text-xs text-stone-400 mt-0.5">{{ .Detail.Name }}</p>
+      </div>
+      <button id="close-itinerary-modal" class="text-stone-400 hover:text-stone-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <div class="px-6 py-5 space-y-6 max-h-[70vh] overflow-y-auto">
+
+      <!-- Arrival -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Arrival</h3>
+        <div class="flex gap-2">
+          <button data-leg="arrival" data-mode="flying"  class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>Flying
+          </button>
+          <button data-leg="arrival" data-mode="driving" class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>Driving
+          </button>
+          <button data-leg="arrival" data-mode="other"   class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>Other
+          </button>
+        </div>
+        <div data-leg="arrival" data-fields="flying"  class="itin-fields hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="arrival" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="arrival" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-stone-600">Flight number <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input data-leg="arrival" data-field="flight_number" type="text" placeholder="e.g. UA 2047" class="itin-input w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">From</label>
+              <input data-leg="arrival" data-field="origin" type="text" placeholder="SFO" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">To</label>
+              <input data-leg="arrival" data-field="destination" type="text" placeholder="RNO" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+            </div>
+          </div>
+        </div>
+        <div data-leg="arrival" data-fields="driving" class="itin-fields hidden space-y-3">
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-stone-600">Driving from</label>
+            <input data-leg="arrival" data-field="origin" type="text" placeholder="Sacramento, CA" class="itin-input w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="arrival" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="arrival" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+        </div>
+        <div data-leg="arrival" data-fields="other" class="itin-fields hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="arrival" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="arrival" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-stone-600">Details <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input data-leg="arrival" data-field="details" type="text" placeholder="e.g. Amtrak from Portland" class="itin-input w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+          </div>
+        </div>
+      </div>
+
+      <hr class="border-stone-100" />
+
+      <!-- Departure -->
+      <div class="space-y-3">
+        <h3 class="text-xs font-semibold text-stone-400 uppercase tracking-wide">Departure</h3>
+        <div class="flex gap-2">
+          <button data-leg="departure" data-mode="flying"  class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>Flying
+          </button>
+          <button data-leg="departure" data-mode="driving" class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" /></svg>Driving
+          </button>
+          <button data-leg="departure" data-mode="other"   class="itin-mode-btn flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border-2 border-stone-200 text-stone-500 text-sm font-medium hover:border-stone-300 transition-all">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>Other
+          </button>
+        </div>
+        <div data-leg="departure" data-fields="flying"  class="itin-fields hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="departure" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="departure" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-stone-600">Flight number <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input data-leg="departure" data-field="flight_number" type="text" placeholder="e.g. UA 2190" class="itin-input w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">From</label>
+              <input data-leg="departure" data-field="origin" type="text" placeholder="RNO" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">To</label>
+              <input data-leg="departure" data-field="destination" type="text" placeholder="SFO" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent uppercase" />
+            </div>
+          </div>
+        </div>
+        <div data-leg="departure" data-fields="driving" class="itin-fields hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="departure" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="departure" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+        </div>
+        <div data-leg="departure" data-fields="other" class="itin-fields hidden space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Date</label>
+              <input data-leg="departure" data-field="date" type="date" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-medium text-stone-600">Time</label>
+              <input data-leg="departure" data-field="time" type="time" class="itin-input w-full px-3 py-2 rounded-lg border border-stone-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-medium text-stone-600">Details <span class="text-stone-400 font-normal">(optional)</span></label>
+            <input data-leg="departure" data-field="details" type="text" placeholder="e.g. Amtrak back to Portland" class="itin-input w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div id="itin-error" class="hidden px-6 pb-3 text-sm text-red-600"></div>
+
+    <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex items-center justify-between">
+      <button id="itin-cancel" class="text-sm text-stone-400 hover:text-stone-600">Cancel</button>
+      <button id="itin-save" class="px-5 py-2.5 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">
+        Save itinerary
+      </button>
+    </div>
+
+  </div>
 </div>
 
 <!-- ======= MEAL PLAN TAB (placeholder) ======= -->
@@ -236,14 +488,13 @@
 <script nonce="{{ .CspNonce }}">
   (function () {
     var eventID = {{ .Detail.ID }};
+    var currentItinerary = {{ .CurrentItineraryJSON }};
 
-    // Tab switching
+    // ── Tab switching ──
     document.querySelectorAll("[data-tab-btn]").forEach(function (btn) {
       btn.addEventListener("click", function () {
         var name = btn.dataset.tabBtn;
-        document.querySelectorAll("[data-tab]").forEach(function (el) {
-          el.classList.add("hidden");
-        });
+        document.querySelectorAll("[data-tab]").forEach(function (el) { el.classList.add("hidden"); });
         document.getElementById("tab-" + name).classList.remove("hidden");
         document.querySelectorAll("[data-tab-btn]").forEach(function (b) {
           b.classList.remove("text-amber-600", "border-amber-500");
@@ -254,23 +505,112 @@
       });
     });
 
-    // RSVP
+    // ── RSVP ──
     async function rsvp(status) {
       var resp = await fetch("/events/" + eventID + "/rsvp", {
-        method: "POST",
-        credentials: "include",
+        method: "POST", credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: status }),
       });
-      if (resp.ok) {
-        window.location.reload();
-      }
+      if (resp.ok) window.location.reload();
     }
-
     var goingBtn    = document.getElementById("rsvp-going");
     var declinedBtn = document.getElementById("rsvp-declined");
     if (goingBtn)    goingBtn.addEventListener("click",    function () { rsvp("going"); });
     if (declinedBtn) declinedBtn.addEventListener("click", function () { rsvp("declined"); });
+
+    // ── Itinerary modal ──
+    var backdrop = document.getElementById("itinerary-backdrop");
+    var activeMode = { arrival: "", departure: "" };
+
+    function setMode(leg, mode) {
+      activeMode[leg] = mode;
+      document.querySelectorAll(".itin-mode-btn[data-leg='" + leg + "']").forEach(function (btn) {
+        var active = btn.dataset.mode === mode;
+        btn.classList.toggle("border-amber-400", active);
+        btn.classList.toggle("bg-amber-50",      active);
+        btn.classList.toggle("text-amber-700",   active);
+        btn.classList.toggle("border-stone-200", !active);
+        btn.classList.toggle("text-stone-500",   !active);
+      });
+      document.querySelectorAll(".itin-fields[data-leg='" + leg + "']").forEach(function (el) {
+        el.classList.toggle("hidden", el.dataset.fields !== mode);
+      });
+    }
+
+    function getFieldValue(leg, field) {
+      // Each mode-panel has its own inputs; read from the active one
+      var panel = document.querySelector(".itin-fields[data-leg='" + leg + "'][data-fields='" + activeMode[leg] + "']");
+      if (!panel) return "";
+      var input = panel.querySelector("[data-field='" + field + "']");
+      return input ? input.value : "";
+    }
+
+    function setFieldValue(leg, field, value) {
+      document.querySelectorAll(".itin-input[data-leg='" + leg + "'][data-field='" + field + "']").forEach(function (el) {
+        el.value = value;
+      });
+    }
+
+    function openModal() {
+      // Pre-populate from server-rendered itinerary data
+      var itin = currentItinerary;
+      setMode("arrival",   itin.arrival_mode   || "flying");
+      setMode("departure", itin.departure_mode || "flying");
+      ["date","time","flight_number","origin","destination","details"].forEach(function (f) {
+        setFieldValue("arrival",   f, itin["arrival_"   + f] || "");
+        setFieldValue("departure", f, itin["departure_" + f] || "");
+      });
+      document.getElementById("itin-error").classList.add("hidden");
+      backdrop.classList.remove("hidden");
+    }
+
+    function closeModal() { backdrop.classList.add("hidden"); }
+
+    document.getElementById("open-itinerary-modal").addEventListener("click", openModal);
+    document.getElementById("close-itinerary-modal").addEventListener("click", closeModal);
+    document.getElementById("itin-cancel").addEventListener("click", closeModal);
+    backdrop.addEventListener("click", function (e) { if (e.target === backdrop) closeModal(); });
+
+    document.querySelectorAll(".itin-mode-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () { setMode(btn.dataset.leg, btn.dataset.mode); });
+    });
+
+    document.getElementById("itin-save").addEventListener("click", async function () {
+      var errorEl = document.getElementById("itin-error");
+      errorEl.classList.add("hidden");
+
+      var payload = {
+        arrival_mode:           activeMode.arrival,
+        arrival_date:           getFieldValue("arrival",   "date"),
+        arrival_time:           getFieldValue("arrival",   "time"),
+        arrival_flight_number:  getFieldValue("arrival",   "flight_number"),
+        arrival_origin:         getFieldValue("arrival",   "origin"),
+        arrival_destination:    getFieldValue("arrival",   "destination"),
+        arrival_details:        getFieldValue("arrival",   "details"),
+        departure_mode:         activeMode.departure,
+        departure_date:         getFieldValue("departure", "date"),
+        departure_time:         getFieldValue("departure", "time"),
+        departure_flight_number: getFieldValue("departure","flight_number"),
+        departure_origin:        getFieldValue("departure","origin"),
+        departure_destination:   getFieldValue("departure","destination"),
+        departure_details:       getFieldValue("departure","details"),
+      };
+
+      var resp = await fetch("/events/" + eventID + "/itinerary", {
+        method: "PUT", credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!resp.ok) {
+        errorEl.textContent = (await resp.text()).trim();
+        errorEl.classList.remove("hidden");
+        return;
+      }
+      window.location.reload();
+    });
+
   })();
 </script>
 

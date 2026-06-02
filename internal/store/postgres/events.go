@@ -140,8 +140,25 @@ func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDeta
 	}
 
 	memberRows, err := s.pool.Query(ctx, `
-		SELECT u.id, u.name, u.avatar_color, em.status, em.invited_at,
-		       ib.name, i.arrival_date, i.departure_date
+		SELECT
+			u.id, u.name, u.avatar_color, em.status, em.invited_at, ib.name,
+			i.event_id IS NOT NULL,
+			COALESCE(i.arrival_mode, ''),
+			i.arrival_date,
+			COALESCE(i.arrival_time::TEXT, ''),
+			COALESCE(i.arrival_flight_number, ''),
+			COALESCE(i.arrival_airline, ''),
+			COALESCE(i.arrival_origin, ''),
+			COALESCE(i.arrival_destination, ''),
+			COALESCE(i.arrival_details, ''),
+			COALESCE(i.departure_mode, ''),
+			i.departure_date,
+			COALESCE(i.departure_time::TEXT, ''),
+			COALESCE(i.departure_flight_number, ''),
+			COALESCE(i.departure_airline, ''),
+			COALESCE(i.departure_origin, ''),
+			COALESCE(i.departure_destination, ''),
+			COALESCE(i.departure_details, '')
 		FROM event_members em
 		JOIN users u  ON u.id  = em.user_id
 		JOIN users ib ON ib.id = em.invited_by
@@ -157,8 +174,12 @@ func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDeta
 	for memberRows.Next() {
 		var m store.EventDetailMember
 		if err := memberRows.Scan(
-			&m.UserID, &m.Name, &m.AvatarColor, &m.Status, &m.InvitedAt,
-			&m.InvitedByName, &m.ArrivalDate, &m.DepartureDate,
+			&m.UserID, &m.Name, &m.AvatarColor, &m.Status, &m.InvitedAt, &m.InvitedByName,
+			&m.HasItinerary,
+			&m.ArrivalMode, &m.ArrivalDate, &m.ArrivalTime,
+			&m.ArrivalFlightNumber, &m.ArrivalAirline, &m.ArrivalOrigin, &m.ArrivalDestination, &m.ArrivalDetails,
+			&m.DepartureMode, &m.DepartureDate, &m.DepartureTime,
+			&m.DepartureFlightNumber, &m.DepartureAirline, &m.DepartureOrigin, &m.DepartureDestination, &m.DepartureDetails,
 		); err != nil {
 			return store.EventDetail{}, fmt.Errorf("scanning member: %w", err)
 		}
@@ -201,6 +222,57 @@ func (s Store) UpdateMemberStatus(ctx context.Context, eventID, userID int, stat
 	)
 	if err != nil {
 		return fmt.Errorf("updating member status: %w", err)
+	}
+	return nil
+}
+
+func (s Store) UpsertItinerary(ctx context.Context, eventID, userID int, in store.ItineraryInput) error {
+	_, err := s.pool.Exec(ctx, `
+		INSERT INTO itineraries (
+			event_id, user_id,
+			arrival_mode,   arrival_date,            arrival_time,
+			arrival_flight_number,  arrival_airline,
+			arrival_origin,         arrival_destination,  arrival_details,
+			departure_mode, departure_date,          departure_time,
+			departure_flight_number, departure_airline,
+			departure_origin,        departure_destination, departure_details
+		) VALUES (
+			$1, $2,
+			NULLIF($3,''),  NULLIF($4,'')::DATE,     NULLIF($5,'')::TIME,
+			NULLIF($6,''),  NULLIF($7,''),
+			NULLIF($8,''),  NULLIF($9,''),            NULLIF($10,''),
+			NULLIF($11,''), NULLIF($12,'')::DATE,     NULLIF($13,'')::TIME,
+			NULLIF($14,''), NULLIF($15,''),
+			NULLIF($16,''), NULLIF($17,''),           NULLIF($18,'')
+		)
+		ON CONFLICT (event_id, user_id) DO UPDATE SET
+			arrival_mode            = EXCLUDED.arrival_mode,
+			arrival_date            = EXCLUDED.arrival_date,
+			arrival_time            = EXCLUDED.arrival_time,
+			arrival_flight_number   = EXCLUDED.arrival_flight_number,
+			arrival_airline         = EXCLUDED.arrival_airline,
+			arrival_origin          = EXCLUDED.arrival_origin,
+			arrival_destination     = EXCLUDED.arrival_destination,
+			arrival_details         = EXCLUDED.arrival_details,
+			departure_mode          = EXCLUDED.departure_mode,
+			departure_date          = EXCLUDED.departure_date,
+			departure_time          = EXCLUDED.departure_time,
+			departure_flight_number = EXCLUDED.departure_flight_number,
+			departure_airline       = EXCLUDED.departure_airline,
+			departure_origin        = EXCLUDED.departure_origin,
+			departure_destination   = EXCLUDED.departure_destination,
+			departure_details       = EXCLUDED.departure_details
+	`,
+		eventID, userID,
+		in.ArrivalMode, in.ArrivalDate, in.ArrivalTime,
+		in.ArrivalFlightNumber, in.ArrivalAirline,
+		in.ArrivalOrigin, in.ArrivalDestination, in.ArrivalDetails,
+		in.DepartureMode, in.DepartureDate, in.DepartureTime,
+		in.DepartureFlightNumber, in.DepartureAirline,
+		in.DepartureOrigin, in.DepartureDestination, in.DepartureDetails,
+	)
+	if err != nil {
+		return fmt.Errorf("upserting itinerary: %w", err)
 	}
 	return nil
 }
