@@ -2,9 +2,11 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/stpotter16/gather/internal/store"
 )
 
@@ -116,4 +118,89 @@ func (s Store) GetEventsForUser(ctx context.Context, userID int) ([]store.EventS
 	}
 
 	return events, nil
+}
+
+func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDetail, error) {
+	var d store.EventDetail
+	err := s.pool.QueryRow(ctx, `
+		SELECT e.id, e.name, e.start_date, e.end_date, e.location,
+		       COALESCE(e.description, ''), e.created_by, u.name
+		FROM events e
+		JOIN users u ON u.id = e.created_by
+		WHERE e.id = $1
+	`, eventID).Scan(
+		&d.ID, &d.Name, &d.StartDate, &d.EndDate, &d.Location,
+		&d.Description, &d.CreatedBy, &d.CreatedByName,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return store.EventDetail{}, store.ErrNotFound
+		}
+		return store.EventDetail{}, fmt.Errorf("getting event: %w", err)
+	}
+
+	memberRows, err := s.pool.Query(ctx, `
+		SELECT u.id, u.name, u.avatar_color, em.status, em.invited_at,
+		       ib.name, i.arrival_date, i.departure_date
+		FROM event_members em
+		JOIN users u  ON u.id  = em.user_id
+		JOIN users ib ON ib.id = em.invited_by
+		LEFT JOIN itineraries i ON i.event_id = em.event_id AND i.user_id = em.user_id
+		WHERE em.event_id = $1
+		ORDER BY CASE em.status WHEN 'going' THEN 1 WHEN 'pending' THEN 2 ELSE 3 END, em.invited_at
+	`, eventID)
+	if err != nil {
+		return store.EventDetail{}, fmt.Errorf("querying members: %w", err)
+	}
+	defer memberRows.Close()
+
+	for memberRows.Next() {
+		var m store.EventDetailMember
+		if err := memberRows.Scan(
+			&m.UserID, &m.Name, &m.AvatarColor, &m.Status, &m.InvitedAt,
+			&m.InvitedByName, &m.ArrivalDate, &m.DepartureDate,
+		); err != nil {
+			return store.EventDetail{}, fmt.Errorf("scanning member: %w", err)
+		}
+		d.Members = append(d.Members, m)
+	}
+	if err := memberRows.Err(); err != nil {
+		return store.EventDetail{}, fmt.Errorf("iterating members: %w", err)
+	}
+
+	accomRows, err := s.pool.Query(ctx, `
+		SELECT a.id, a.label, a.url, u.name
+		FROM accommodations a
+		JOIN users u ON u.id = a.added_by
+		WHERE a.event_id = $1
+		ORDER BY a.created_at
+	`, eventID)
+	if err != nil {
+		return store.EventDetail{}, fmt.Errorf("querying accommodations: %w", err)
+	}
+	defer accomRows.Close()
+
+	for accomRows.Next() {
+		var a store.Accommodation
+		if err := accomRows.Scan(&a.ID, &a.Label, &a.URL, &a.AddedBy); err != nil {
+			return store.EventDetail{}, fmt.Errorf("scanning accommodation: %w", err)
+		}
+		d.Accommodations = append(d.Accommodations, a)
+	}
+	if err := accomRows.Err(); err != nil {
+		return store.EventDetail{}, fmt.Errorf("iterating accommodations: %w", err)
+	}
+
+	return d, nil
+}
+
+func (s Store) UpdateMemberStatus(ctx context.Context, eventID, userID int, status string) error {
+	_, err := s.pool.Exec(ctx,
+		`UPDATE event_members SET status = $1, responded_at = NOW() WHERE event_id = $2 AND user_id = $3`,
+		status, eventID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("updating member status: %w", err)
+	}
+	return nil
 }

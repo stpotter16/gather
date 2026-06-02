@@ -1,0 +1,277 @@
+{{ template "base.html" . }}
+
+{{ define "main" }}
+
+<!-- Event header -->
+<header class="bg-white border-b border-stone-200">
+  <div class="max-w-4xl mx-auto px-6 py-8">
+
+    <nav class="text-sm text-stone-400 mb-5">
+      <a href="/" class="hover:text-stone-600">Gatherings</a>
+      <span class="mx-2">/</span>
+      <span class="text-stone-600">{{ .Detail.Name }}</span>
+    </nav>
+
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-stone-900 leading-tight">{{ .Detail.Name }}</h1>
+        <p class="mt-1 text-stone-500 text-sm">Hosted by {{ .Detail.CreatedByName }}</p>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button class="text-sm px-3 py-1.5 rounded-md border border-stone-300 text-stone-600 hover:bg-stone-50">Edit</button>
+        <button class="text-sm px-3 py-1.5 rounded-md bg-amber-500 text-white font-medium hover:bg-amber-600">Invite</button>
+      </div>
+    </div>
+
+    <div class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-stone-600">
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <span>{{ .DateRange }}</span>
+        <span class="text-stone-400">&middot; {{ .DayCount }} days</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+        </svg>
+        <span>{{ .Detail.Location }}</span>
+      </div>
+      {{ if .GoingCount }}
+      <div class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+        <div class="flex items-center gap-2">
+          <div class="flex -space-x-2">
+            {{ range .HeaderAvatars }}
+            <div class="w-6 h-6 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold"
+                 style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+            {{ end }}
+            {{ if gt .HeaderExtra 0 }}
+            <div class="w-6 h-6 rounded-full bg-stone-200 ring-2 ring-white flex items-center justify-center text-stone-500 text-xs font-semibold">+{{ .HeaderExtra }}</div>
+            {{ end }}
+          </div>
+          <span>{{ .GoingCount }} attending</span>
+        </div>
+      </div>
+      {{ end }}
+    </div>
+
+    {{ if .Detail.Description }}
+    <p class="mt-4 text-sm text-stone-500 max-w-2xl leading-relaxed">{{ .Detail.Description }}</p>
+    {{ end }}
+
+  </div>
+
+  <!-- Tab nav -->
+  <div class="max-w-4xl mx-auto px-6">
+    <nav class="flex gap-1 -mb-px">
+      <button data-tab-btn="overview"    class="px-4 py-2.5 text-sm font-medium border-b-2 text-amber-600 border-amber-500">Overview</button>
+      <button data-tab-btn="itineraries" class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Itineraries</button>
+      <button data-tab-btn="food"        class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Meal Plan</button>
+      <button data-tab-btn="activities"  class="px-4 py-2.5 text-sm font-medium border-b-2 text-stone-500 border-transparent hover:text-stone-700">Activities</button>
+    </nav>
+  </div>
+</header>
+
+<!-- RSVP banner -->
+{{ if eq .CurrentStatus "pending" }}
+<div id="rsvp-banner" class="bg-amber-50 border-b border-amber-200">
+  <div class="max-w-4xl mx-auto px-6 py-3 flex items-center justify-between gap-4">
+    <p class="text-sm text-amber-800">{{ .InvitedBy }} invited you to this gathering. Are you going?</p>
+    <div class="flex items-center gap-2 shrink-0">
+      <button id="rsvp-going"    class="px-3 py-1.5 rounded-md bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors">I'm going</button>
+      <button id="rsvp-declined" class="px-3 py-1.5 rounded-md border border-amber-300 text-amber-700 text-sm font-medium hover:bg-amber-100 transition-colors">Can't make it</button>
+    </div>
+  </div>
+</div>
+{{ end }}
+
+<!-- ======= OVERVIEW TAB ======= -->
+<div id="tab-overview" data-tab class="max-w-4xl mx-auto px-6 py-8 space-y-6">
+
+  <!-- Group Timeline -->
+  {{ if .TimelineRows }}
+  <div class="bg-white rounded-xl border border-stone-200 overflow-hidden">
+    <div class="px-5 py-4 border-b border-stone-100">
+      <h2 class="text-sm font-semibold text-stone-700">Group Timeline</h2>
+    </div>
+    <div class="px-5 py-4">
+      <div class="flex ml-28 mb-2">
+        {{ range .TimelineCols }}
+        <div class="flex-1 text-xs text-stone-400 font-medium">{{ . }}</div>
+        {{ end }}
+        <div class="w-2"></div>
+      </div>
+      <div class="space-y-2">
+        {{ range .TimelineRows }}
+        <div class="flex items-center gap-3">
+          <div class="w-28 shrink-0 flex items-center gap-2">
+            <div class="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0"
+                 style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+            <span class="text-xs text-stone-600 truncate">{{ .Name }}</span>
+          </div>
+          <div class="flex-1 relative h-6">
+            <div class="absolute inset-y-0 left-0 right-0 flex divide-x divide-stone-100">
+              {{ range $.TimelineCols }}<div class="flex-1"></div>{{ end }}
+            </div>
+            <div class="absolute inset-y-1 rounded-full"
+                 style="background-color: {{ .AvatarColor }}; left: {{ .LeftPct }}%; width: {{ .WidthPct }}%"></div>
+          </div>
+        </div>
+        {{ end }}
+      </div>
+    </div>
+  </div>
+  {{ end }}
+
+  <!-- Attendees -->
+  <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+
+    <div class="px-5 py-4 flex items-center gap-3 text-sm">
+      {{ if .GoingCount }}<span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 font-medium">{{ .GoingCount }} attending</span>{{ end }}
+      {{ if .PendingCount }}<span class="px-3 py-1 rounded-full bg-stone-200 text-stone-500 font-medium">{{ .PendingCount }} pending</span>{{ end }}
+      {{ if .DeclinedCount }}<span class="px-3 py-1 rounded-full bg-rose-100 text-rose-600 font-medium">{{ .DeclinedCount }} declined</span>{{ end }}
+    </div>
+
+    {{ if .Going }}
+    <div class="px-5 py-3 text-xs font-semibold text-stone-400 uppercase tracking-wide">Attending</div>
+    {{ range .Going }}
+    <div class="flex items-center gap-4 px-5 py-3">
+      <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold shrink-0"
+           style="background-color: {{ .AvatarColor }}">{{ .Name | initial }}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium text-stone-800">
+          {{ .Name }}{{ if .IsHost }}<span class="text-stone-400 font-normal text-xs ml-1">host</span>{{ end }}
+        </div>
+        {{ if .DateSummary }}<div class="text-xs text-stone-400">{{ .DateSummary }}</div>{{ end }}
+      </div>
+      <span class="text-xs text-emerald-600 font-medium">Going</span>
+    </div>
+    {{ end }}
+    {{ end }}
+
+    {{ if .Pending }}
+    <div class="px-5 py-3 text-xs font-semibold text-stone-400 uppercase tracking-wide">Pending</div>
+    {{ range .Pending }}
+    <div class="flex items-center gap-4 px-5 py-3">
+      <div class="w-9 h-9 rounded-full bg-stone-200 flex items-center justify-center text-stone-500 font-semibold shrink-0">{{ .Name | initial }}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium text-stone-500">{{ .Name }}</div>
+        <div class="text-xs text-stone-400">{{ .InvitedAgo }}</div>
+      </div>
+      <button class="text-xs text-stone-400 hover:text-stone-600 font-medium">Nudge</button>
+    </div>
+    {{ end }}
+    {{ end }}
+
+    {{ if .Declined }}
+    <div class="px-5 py-3 text-xs font-semibold text-stone-400 uppercase tracking-wide">Declined</div>
+    {{ range .Declined }}
+    <div class="flex items-center gap-4 px-5 py-3">
+      <div class="w-9 h-9 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 font-semibold shrink-0">{{ .Name | initial }}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium text-stone-400 line-through">{{ .Name }}</div>
+        <div class="text-xs text-stone-400">Can't make it</div>
+      </div>
+      <span class="text-xs text-rose-500 font-medium">Declined</span>
+    </div>
+    {{ end }}
+    {{ end }}
+
+    <div class="px-5 py-3">
+      <button class="flex items-center gap-2 text-sm text-stone-400 hover:text-amber-600 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Invite someone
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Accommodations -->
+  <div class="bg-white rounded-xl border border-stone-200 divide-y divide-stone-100">
+    <div class="px-5 py-4 flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-stone-700">Accommodations</h2>
+      <button class="text-sm text-amber-600 font-medium hover:text-amber-700">+ Add</button>
+    </div>
+    {{ range .Detail.Accommodations }}
+    <div class="flex items-center gap-4 px-5 py-3">
+      <div class="w-9 h-9 rounded-lg bg-stone-100 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <a href="{{ .URL }}" target="_blank" rel="noopener" class="text-sm font-medium text-stone-800 hover:text-amber-600 transition-colors">{{ .Label }}</a>
+        <div class="text-xs text-stone-400 mt-0.5">{{ .URL | hostname }} &middot; Added by {{ .AddedBy }}</div>
+      </div>
+    </div>
+    {{ end }}
+    {{ if not .Detail.Accommodations }}
+    <div class="px-5 py-4 text-sm text-stone-400">No accommodations added yet.</div>
+    {{ end }}
+  </div>
+
+</div>
+
+<!-- ======= ITINERARIES TAB (placeholder) ======= -->
+<div id="tab-itineraries" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
+  <p class="text-sm text-stone-400">Coming soon.</p>
+</div>
+
+<!-- ======= MEAL PLAN TAB (placeholder) ======= -->
+<div id="tab-food" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
+  <p class="text-sm text-stone-400">Coming soon.</p>
+</div>
+
+<!-- ======= ACTIVITIES TAB (placeholder) ======= -->
+<div id="tab-activities" data-tab class="hidden max-w-4xl mx-auto px-6 py-8">
+  <p class="text-sm text-stone-400">Coming soon.</p>
+</div>
+
+<script nonce="{{ .CspNonce }}">
+  (function () {
+    var eventID = {{ .Detail.ID }};
+
+    // Tab switching
+    document.querySelectorAll("[data-tab-btn]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var name = btn.dataset.tabBtn;
+        document.querySelectorAll("[data-tab]").forEach(function (el) {
+          el.classList.add("hidden");
+        });
+        document.getElementById("tab-" + name).classList.remove("hidden");
+        document.querySelectorAll("[data-tab-btn]").forEach(function (b) {
+          b.classList.remove("text-amber-600", "border-amber-500");
+          b.classList.add("text-stone-500", "border-transparent");
+        });
+        btn.classList.remove("text-stone-500", "border-transparent");
+        btn.classList.add("text-amber-600", "border-amber-500");
+      });
+    });
+
+    // RSVP
+    async function rsvp(status) {
+      var resp = await fetch("/events/" + eventID + "/rsvp", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: status }),
+      });
+      if (resp.ok) {
+        window.location.reload();
+      }
+    }
+
+    var goingBtn    = document.getElementById("rsvp-going");
+    var declinedBtn = document.getElementById("rsvp-declined");
+    if (goingBtn)    goingBtn.addEventListener("click",    function () { rsvp("going"); });
+    if (declinedBtn) declinedBtn.addEventListener("click", function () { rsvp("declined"); });
+  })();
+</script>
+
+{{ end }}

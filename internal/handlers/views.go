@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"net/url"
 
 	"github.com/stpotter16/gather/internal/handlers/middleware"
 	"github.com/stpotter16/gather/internal/store"
@@ -20,6 +21,13 @@ var templateFuncs = template.FuncMap{
 			return "?"
 		}
 		return string(r[0])
+	},
+	"hostname": func(rawURL string) string {
+		u, err := url.Parse(rawURL)
+		if err != nil || u.Host == "" {
+			return rawURL
+		}
+		return u.Hostname()
 	},
 }
 
