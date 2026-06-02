@@ -167,6 +167,73 @@ func (s *Server) groceryCreatePost(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"id":` + strconv.Itoa(groceryID) + `}`))
 }
 
+func (s *Server) cookAssignPost(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	mealID, err := strconv.Atoi(r.PathValue("mealID"))
+	if err != nil || mealID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	var body struct {
+		UserID int `json:"user_id"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "Invalid request.", http.StatusBadRequest)
+		return
+	}
+	if body.UserID <= 0 {
+		http.Error(w, "user_id is required.", http.StatusUnprocessableEntity)
+		return
+	}
+
+	if err := s.store.AssignCook(r.Context(), mealID, body.UserID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) cookRemoveDelete(w http.ResponseWriter, r *http.Request) {
+	eventID, ok := parseEventID(r)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	user, _ := middleware.UserFromContext(r.Context())
+	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
+	mealID, err := strconv.Atoi(r.PathValue("mealID"))
+	if err != nil || mealID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+	cookUserID, err := strconv.Atoi(r.PathValue("userID"))
+	if err != nil || cookUserID <= 0 {
+		http.NotFound(w, r)
+		return
+	}
+
+	if err := s.store.RemoveCook(r.Context(), mealID, cookUserID); err != nil {
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
 func (s *Server) groceryTogglePost(w http.ResponseWriter, r *http.Request) {
 	eventID, ok := parseEventID(r)
 	if !ok {

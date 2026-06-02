@@ -109,6 +109,7 @@ type FoodRestriction struct {
 }
 
 type MealCook struct {
+	UserID      int
 	Name        string
 	AvatarColor string
 }
@@ -173,9 +174,12 @@ type Store interface {
 	AddDish(ctx context.Context, mealID int, name string) (int, error)
 	AddGrocery(ctx context.Context, eventID int, name, category string) (int, error)
 	ToggleGrocery(ctx context.Context, groceryID, eventID int) error
+	UpdateEvent(ctx context.Context, eventID int, name, location, description string, startDate, endDate time.Time) error
 	GetActivities(ctx context.Context, eventID, userID int) ([]Activity, error)
 	CreateActivity(ctx context.Context, eventID, userID int, name, description string) (int, error)
 	ToggleActivityVote(ctx context.Context, activityID, userID int) error
 	GetInviteCandidates(ctx context.Context, eventID int) ([]InviteCandidate, error)
 	InviteUsers(ctx context.Context, eventID, inviterID int, userIDs []int) error
+	AssignCook(ctx context.Context, mealID, userID int) error
+	RemoveCook(ctx context.Context, mealID, userID int) error
 }

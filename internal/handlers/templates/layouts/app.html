@@ -3,12 +3,24 @@
   <div class="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
     <a href="/" class="text-lg font-bold text-stone-900 tracking-tight">Gather</a>
     {{ block "nav-right" . }}
-    <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
-         style="background-color: {{ .User.AvatarColor }}">
-      {{ .User.Name | initial }}
+    <div class="flex items-center gap-3">
+      <button id="logout-btn" class="text-sm text-stone-400 hover:text-stone-600 transition-colors">Sign out</button>
+      <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold"
+           style="background-color: {{ .User.AvatarColor }}">
+        {{ .User.Name | initial }}
+      </div>
     </div>
     {{ end }}
   </div>
 </nav>
 {{ block "main" . }}{{ end }}
+<script nonce="{{ .CspNonce }}">
+  var logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", async function () {
+      await fetch("/logout", { method: "POST", credentials: "include" });
+      window.location.href = "/login";
+    });
+  }
+</script>
 {{ end }}

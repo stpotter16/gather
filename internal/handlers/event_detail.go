@@ -51,6 +51,7 @@ type eventDetailProps struct {
 	InvitedBy             string
 	HasCurrentItinerary   bool
 	CurrentItineraryJSON  template.JS
+	GoingMembersJSON      template.JS
 	// Invite
 	InviteCandidates []store.InviteCandidate
 	// Activities
@@ -244,6 +245,7 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 		Ideas:                ideas,
 		HasCurrentItinerary:  currentMember.HasItinerary,
 		CurrentItineraryJSON: currentItineraryJSON,
+		GoingMembersJSON:     buildGoingMembersJSON(going),
 		Restrictions:         mealPlan.Restrictions,
 		MealDays:             mealDays,
 		ToBuy:                toBuy,
@@ -338,6 +340,20 @@ func invitedAgo(t time.Time) string {
 	default:
 		return fmt.Sprintf("Invited %d days ago", days)
 	}
+}
+
+func buildGoingMembersJSON(going []memberView) template.JS {
+	type member struct {
+		ID          int    `json:"id"`
+		Name        string `json:"name"`
+		AvatarColor string `json:"avatarColor"`
+	}
+	members := make([]member, len(going))
+	for i, m := range going {
+		members[i] = member{ID: m.UserID, Name: m.Name, AvatarColor: m.AvatarColor}
+	}
+	b, _ := json.Marshal(members)
+	return template.JS(b)
 }
 
 // buildItineraryJSON serialises the current user's itinerary for modal pre-population.

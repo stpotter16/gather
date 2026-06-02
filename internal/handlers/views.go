@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"embed"
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -17,6 +18,14 @@ import (
 var templateFS embed.FS
 
 var templateFuncs = template.FuncMap{
+	"cookIDsJSON": func(cooks []store.MealCook) template.JS {
+		ids := make([]int, len(cooks))
+		for i, c := range cooks {
+			ids[i] = c.UserID
+		}
+		b, _ := json.Marshal(ids)
+		return template.JS(b)
+	},
 	"initial": func(s string) string {
 		r := []rune(s)
 		if len(r) == 0 {

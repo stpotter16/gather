@@ -215,6 +215,21 @@ func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDeta
 	return d, nil
 }
 
+func (s Store) UpdateEvent(ctx context.Context, eventID int, name, location, description string, startDate, endDate time.Time) error {
+	var desc *string
+	if description != "" {
+		desc = &description
+	}
+	_, err := s.pool.Exec(ctx,
+		`UPDATE events SET name=$1, location=$2, description=$3, start_date=$4, end_date=$5 WHERE id=$6`,
+		name, location, desc, startDate, endDate, eventID,
+	)
+	if err != nil {
+		return fmt.Errorf("updating event: %w", err)
+	}
+	return nil
+}
+
 func (s Store) IsEventMember(ctx context.Context, eventID, userID int) (bool, error) {
 	var exists bool
 	err := s.pool.QueryRow(ctx,

@@ -59,7 +59,7 @@ func (s Store) GetMealPlanData(ctx context.Context, eventID int) (store.MealPlan
 	if len(data.Meals) > 0 {
 		// Meal cooks
 		cookRows, err := s.pool.Query(ctx, `
-			SELECT ma.meal_id, u.name, u.avatar_color
+			SELECT ma.meal_id, u.id, u.name, u.avatar_color
 			FROM meal_assignments ma
 			JOIN users u ON u.id = ma.user_id
 			WHERE ma.meal_id IN (SELECT id FROM meals WHERE event_id = $1)
@@ -72,7 +72,7 @@ func (s Store) GetMealPlanData(ctx context.Context, eventID int) (store.MealPlan
 		for cookRows.Next() {
 			var mealID int
 			var c store.MealCook
-			if err := cookRows.Scan(&mealID, &c.Name, &c.AvatarColor); err != nil {
+			if err := cookRows.Scan(&mealID, &c.UserID, &c.Name, &c.AvatarColor); err != nil {
 				return data, fmt.Errorf("scanning cook: %w", err)
 			}
 			if idx, ok := mealIndex[mealID]; ok {
@@ -192,6 +192,28 @@ func (s Store) ToggleGrocery(ctx context.Context, groceryID, eventID int) error 
 	)
 	if err != nil {
 		return fmt.Errorf("toggling grocery: %w", err)
+	}
+	return nil
+}
+
+func (s Store) AssignCook(ctx context.Context, mealID, userID int) error {
+	_, err := s.pool.Exec(ctx,
+		`INSERT INTO meal_assignments (meal_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+		mealID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("assigning cook: %w", err)
+	}
+	return nil
+}
+
+func (s Store) RemoveCook(ctx context.Context, mealID, userID int) error {
+	_, err := s.pool.Exec(ctx,
+		`DELETE FROM meal_assignments WHERE meal_id = $1 AND user_id = $2`,
+		mealID, userID,
+	)
+	if err != nil {
+		return fmt.Errorf("removing cook: %w", err)
 	}
 	return nil
 }

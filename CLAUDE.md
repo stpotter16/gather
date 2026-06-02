@@ -53,6 +53,22 @@ style/input.css                 Tailwind source (just @import "tailwindcss")
 dev-scripts/                    shell scripts called by Makefile
 ```
 
+## Implementation status
+
+The core app is built and functional.
+
+### Nice-to-have (app works without these)
+
+- **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
+- **Confirm an activity** — change status from `'idea'` to `'confirmed'`; needs `POST /events/{id}/activities/{activityID}/confirm` → `UPDATE activities SET status = 'confirmed'`
+- **Delete meal / dish / grocery** — no delete UI exists anywhere in the Meal Plan tab
+- **Edit food restriction** — once saved, a user can't change their restriction without re-saving (the upsert works, but the form is hidden after first save)
+- **Remove yourself from an event** — no leave/withdraw action
+
+### Out of scope for now
+- Flight number lookup via AviationStack (or similar) API — fields exist in the itinerary form, auto-fill is deferred
+- Email/push notifications for invites and nudges
+
 ## Auth and user management
 
 No self-serve signup. Users are added to the database manually by the admin via SQL. Inviting is restricted to existing users.

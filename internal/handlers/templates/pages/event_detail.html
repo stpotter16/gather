@@ -18,7 +18,7 @@
         <p class="mt-1 text-stone-500 text-sm">Hosted by {{ .Detail.CreatedByName }}</p>
       </div>
       <div class="flex items-center gap-2 shrink-0">
-        <button class="text-sm px-3 py-1.5 rounded-md border border-stone-300 text-stone-600 hover:bg-stone-50">Edit</button>
+        <a href="/events/{{ .Detail.ID }}/edit" class="text-sm px-3 py-1.5 rounded-md border border-stone-300 text-stone-600 hover:bg-stone-50">Edit</a>
         <button id="open-invite" class="text-sm px-3 py-1.5 rounded-md bg-amber-500 text-white font-medium hover:bg-amber-600">Invite</button>
       </div>
     </div>
@@ -524,7 +524,7 @@
         <div class="px-5 py-3 flex items-center gap-3">
           <span class="text-xs text-stone-400 w-16 shrink-0">Cooking</span>
           {{ if .Cooks }}
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-1">
             <div class="flex -space-x-1.5">
               {{ range .Cooks }}
               <div class="w-6 h-6 rounded-full ring-2 ring-white flex items-center justify-center text-white text-xs font-semibold"
@@ -534,8 +534,11 @@
             <span class="text-xs text-stone-500">{{ .Cooks | cookNames }}</span>
           </div>
           {{ else }}
-          <span class="text-xs text-stone-400 italic">No one assigned</span>
+          <span class="flex-1 text-xs text-stone-400 italic">No one assigned</span>
           {{ end }}
+          <button class="cook-assign-btn text-xs text-stone-400 hover:text-amber-600 transition-colors"
+                  data-meal-id="{{ .ID }}"
+                  data-cook-ids="{{ .Cooks | cookIDsJSON }}">Assign</button>
         </div>
         <div class="px-5 py-2.5 flex flex-wrap items-center gap-1.5">
           <span class="text-xs text-stone-400 w-16 shrink-0">Dishes</span>
@@ -823,6 +826,27 @@
   </div>
 </div>
 
+<!-- ======= COOK ASSIGNMENT MODAL ======= -->
+<div id="cook-backdrop" class="hidden fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-24 px-4 z-10">
+  <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
+
+    <div class="px-6 py-5 border-b border-stone-100 flex items-center justify-between">
+      <h2 class="text-base font-semibold text-stone-900">Who's cooking?</h2>
+      <button id="close-cook" class="text-stone-400 hover:text-stone-600">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    </div>
+
+    <div id="cook-member-list" class="px-6 py-3 max-h-64 overflow-y-auto space-y-1">
+    </div>
+
+    <div class="px-6 py-4 bg-stone-50 border-t border-stone-100 flex justify-end">
+      <button id="close-cook-done" class="px-4 py-2 rounded-lg bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors">Done</button>
+    </div>
+
+  </div>
+</div>
+
 <!-- ======= SUGGEST ACTIVITY MODAL ======= -->
 <div id="suggest-backdrop" class="hidden fixed inset-0 bg-stone-900/40 flex items-start justify-center pt-24 px-4 z-10">
   <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden">
@@ -859,6 +883,7 @@
   (function () {
     var eventID = {{ .Detail.ID }};
     var currentItinerary = {{ .CurrentItineraryJSON }};
+    var goingMembers = {{ .GoingMembersJSON }};
 
     // ── Tab switching ──
     document.querySelectorAll("[data-tab-btn]").forEach(function (btn) {
@@ -1143,6 +1168,76 @@
         window.location.reload();
       });
     }
+
+    // ── Cook assignment ──
+    var cookBackdrop  = document.getElementById("cook-backdrop");
+    var cookMealID    = null;
+
+    function openCookModal(mealID, cookIDs) {
+      cookMealID = mealID;
+      var list = document.getElementById("cook-member-list");
+      list.innerHTML = "";
+      goingMembers.forEach(function (m) {
+        var assigned = cookIDs.indexOf(m.id) !== -1;
+        var btn = document.createElement("button");
+        btn.className = "cook-member-row w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-stone-50 transition-colors text-left";
+        btn.dataset.userId   = m.id;
+        btn.dataset.assigned = assigned ? "true" : "false";
+        btn.innerHTML =
+          '<div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0" style="background-color:' + m.avatarColor + '">' + m.name.charAt(0) + '</div>' +
+          '<span class="flex-1 text-sm font-medium text-stone-800">' + m.name + '</span>' +
+          '<span class="cook-icon">' + (assigned
+            ? '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>'
+            : '<svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>'
+          ) + '</span>';
+
+        btn.addEventListener("click", async function () {
+          var uid      = parseInt(btn.dataset.userId);
+          var isAssigned = btn.dataset.assigned === "true";
+          if (isAssigned) {
+            var resp = await fetch("/events/" + eventID + "/meals/" + cookMealID + "/cooks/" + uid, {
+              method: "DELETE", credentials: "include",
+            });
+            if (resp.ok) {
+              btn.dataset.assigned = "false";
+              btn.querySelector(".cook-icon").innerHTML = '<svg class="w-4 h-4 text-stone-300" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>';
+              btn.classList.remove("bg-amber-50");
+            }
+          } else {
+            var resp = await fetch("/events/" + eventID + "/meals/" + cookMealID + "/cooks", {
+              method: "POST", credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ user_id: uid }),
+            });
+            if (resp.ok) {
+              btn.dataset.assigned = "true";
+              btn.querySelector(".cook-icon").innerHTML = '<svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
+              btn.classList.add("bg-amber-50");
+            }
+          }
+        });
+
+        if (assigned) btn.classList.add("bg-amber-50");
+        list.appendChild(btn);
+      });
+      cookBackdrop.classList.remove("hidden");
+    }
+
+    function closeCookModal() {
+      cookBackdrop.classList.add("hidden");
+      window.location.reload();
+    }
+
+    document.querySelectorAll(".cook-assign-btn").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var mealID  = parseInt(btn.dataset.mealId);
+        var cookIDs = JSON.parse(btn.dataset.cookIds || "[]");
+        openCookModal(mealID, cookIDs);
+      });
+    });
+    document.getElementById("close-cook").addEventListener("click", closeCookModal);
+    document.getElementById("close-cook-done").addEventListener("click", closeCookModal);
+    cookBackdrop.addEventListener("click", function (e) { if (e.target === cookBackdrop) closeCookModal(); });
 
     // ── Activities ──
     document.querySelectorAll(".vote-btn").forEach(function (btn) {
