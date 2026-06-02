@@ -13,9 +13,9 @@ import (
 func run(ctx context.Context) error {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
-	databaseURL := os.Getenv("DATABASE_URL")
+	databaseURL := os.Getenv("DATABASE_DIRECT_URL")
 	if databaseURL == "" {
-		return errors.New("DATABASE_URL environment variable not set")
+		return errors.New("DATABASE_DIRECT_URL environment variable not set")
 	}
 
 	store, err := postgres.New(ctx, databaseURL)

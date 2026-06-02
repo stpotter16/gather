@@ -71,6 +71,48 @@ The core app is built and functional.
 
 **`style-src 'unsafe-inline'` in CSP** — Tailwind compiles to an external stylesheet, so inline styles aren't needed for that. The `style="background-color: ..."` element attributes are the only thing requiring it. Could be removed by moving dynamic colors to CSS custom properties or a data-attribute approach, but this is low priority.
 
+## Deployment
+
+Two Fly.io apps — `app-cometogather` (production) and `app-cometogather-staging` (staging), both in `iad`. Both are deployed manually.
+
+**Config files:**
+- `fly.toml` — production
+- `fly.staging.toml` — staging
+
+Both scale to zero (`min_machines_running = 0`).
+
+**Deploy commands:**
+```bash
+fly deploy --config fly.toml           # production
+fly deploy --config fly.staging.toml   # staging
+```
+
+The release command in both configs runs `/app/migrate` before traffic switches to the new version. Failed migrations abort the deploy.
+
+**One-time setup per environment:**
+```bash
+fly apps create app-cometogather
+fly apps create app-cometogather-staging
+
+fly secrets set \
+  DATABASE_URL=<neon-prod-pooler-url> \
+  DATABASE_DIRECT_URL=<neon-prod-direct-url> \
+  GATHER_HMAC_SECRET=<secret> \
+  --app app-cometogather
+
+fly secrets set \
+  DATABASE_URL=<neon-staging-pooler-url> \
+  DATABASE_DIRECT_URL=<neon-staging-direct-url> \
+  GATHER_HMAC_SECRET=<secret> \
+  --app app-cometogather-staging
+```
+
+**Neon connection strings:**
+- `DATABASE_URL` — the **pooler** URL (hostname contains `-pooler`). Used by the server; routes through PgBouncer in transaction mode for efficient connection handling.
+- `DATABASE_DIRECT_URL` — the **direct** URL (no `-pooler`). Used only by `cmd/migrate`; DDL requires a direct Postgres connection, not PgBouncer.
+
+Use a `staging` branch off `main` for the staging database. Each environment has its own secrets so sessions don't bleed between environments.
+
 ## Auth and user management
 
 No self-serve signup. Users are added to the database manually by the admin via SQL. Inviting is restricted to existing users.

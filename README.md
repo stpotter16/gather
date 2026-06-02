@@ -40,8 +40,32 @@ make db/migrate
 
 ## Deployment
 
+Two environments on Fly.io, both deployed manually:
+
 ```bash
-make server/deploy  # deploys to Fly.io
+fly deploy --config fly.toml           # production  (app-cometogather)
+fly deploy --config fly.staging.toml   # staging     (app-cometogather-staging)
 ```
 
-Set `DATABASE_URL` in Fly secrets to Neon's **pooler** URL (hostname contains `-pooler`).
+Migrations run automatically as a release command before traffic switches — a failed migration aborts the deploy.
+
+**First-time setup:**
+
+```bash
+fly apps create app-cometogather
+fly apps create app-cometogather-staging
+
+fly secrets set \
+  DATABASE_URL=<neon-pooler-url> \
+  DATABASE_DIRECT_URL=<neon-direct-url> \
+  GATHER_HMAC_SECRET=<secret> \
+  --app app-cometogather
+
+fly secrets set \
+  DATABASE_URL=<neon-pooler-url> \
+  DATABASE_DIRECT_URL=<neon-direct-url> \
+  GATHER_HMAC_SECRET=<secret> \
+  --app app-cometogather-staging
+```
+
+Neon provides both URLs in the connection details panel. `DATABASE_URL` is the pooler (hostname contains `-pooler`) — used by the server. `DATABASE_DIRECT_URL` is the direct connection — used by migrations. Use a separate Neon branch for staging. Generate an HMAC secret with `make secrets/hmac`.
