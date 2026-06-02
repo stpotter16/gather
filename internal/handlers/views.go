@@ -31,6 +31,7 @@ var templateFuncs = template.FuncMap{
 		}
 		return u.Hostname()
 	},
+	"lower": strings.ToLower,
 	"cookNames": func(cooks []store.MealCook) string {
 		names := make([]string, len(cooks))
 		for i, c := range cooks {

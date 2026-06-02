@@ -141,6 +141,12 @@ type MealPlanData struct {
 	Groceries    []GroceryItem
 }
 
+type InviteCandidate struct {
+	ID          int
+	Name        string
+	AvatarColor string
+}
+
 type Activity struct {
 	ID               int
 	Name             string
@@ -170,4 +176,6 @@ type Store interface {
 	GetActivities(ctx context.Context, eventID, userID int) ([]Activity, error)
 	CreateActivity(ctx context.Context, eventID, userID int, name, description string) (int, error)
 	ToggleActivityVote(ctx context.Context, activityID, userID int) error
+	GetInviteCandidates(ctx context.Context, eventID int) ([]InviteCandidate, error)
+	InviteUsers(ctx context.Context, eventID, inviterID int, userIDs []int) error
 }

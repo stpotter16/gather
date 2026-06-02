@@ -183,6 +183,12 @@ Two tables: `activities` and `activity_votes`.
 
 ---
 
+## Security conventions
+
+**Event membership:** All mutation handlers for event-scoped resources (meals, dishes, groceries, activities, itineraries, invites) must verify the current user is a member of the event before touching the database. Use `s.store.IsEventMember(r.Context(), eventID, user.ID)` at the top of the handler and return 403 if false. The `RequireAuth` middleware only checks login status — it does not verify event membership.
+
+**Embedding server data for client JS:** Use `html/template.JS` to safely embed Go values into `<script>` blocks without HTML-escaping. Marshal the value to JSON, cast to `template.JS`, and reference it in the template: `var x = {{ .MyJSField }};`. Used for modal pre-population (e.g., itinerary data) where the server-rendered value needs to be readable by JS on the same page.
+
 ## Client–server communication
 
 All state-mutating requests (POST/PUT/DELETE) send **JSON bodies** — not HTML form encoding.
