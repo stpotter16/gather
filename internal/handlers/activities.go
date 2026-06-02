@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-
-	"github.com/stpotter16/gather/internal/handlers/middleware"
 )
 
 func (s *Server) activityCreatePost(w http.ResponseWriter, r *http.Request) {
@@ -15,9 +13,8 @@ func (s *Server) activityCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), id, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	user, ok := s.requireMember(w, r, id)
+	if !ok {
 		return
 	}
 
@@ -52,14 +49,12 @@ func (s *Server) activityConfirmPost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	activityID, err := strconv.Atoi(r.PathValue("activityID"))
-	if err != nil || activityID <= 0 {
+	activityID, ok := parsePathInt(r, "activityID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
 	if err := s.store.ConfirmActivity(r.Context(), activityID, eventID); err != nil {
@@ -75,15 +70,13 @@ func (s *Server) activityVotePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	activityID, err := strconv.Atoi(r.PathValue("activityID"))
-	if err != nil || activityID <= 0 {
+	activityID, ok := parsePathInt(r, "activityID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	user, ok := s.requireMember(w, r, eventID)
+	if !ok {
 		return
 	}
 

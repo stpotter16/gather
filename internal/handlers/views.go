@@ -23,7 +23,11 @@ var templateFuncs = template.FuncMap{
 		for i, c := range cooks {
 			ids[i] = c.UserID
 		}
-		b, _ := json.Marshal(ids)
+		b, err := json.Marshal(ids)
+		if err != nil {
+			log.Printf("cookIDsJSON marshal error: %v", err)
+			return template.JS("[]")
+		}
 		return template.JS(b)
 	},
 	"initial": func(s string) string {
@@ -82,13 +86,13 @@ func renderAuthPage(w http.ResponseWriter, r *http.Request, status int, page str
 		"templates/pages/"+page,
 	)
 	if err != nil {
-		log.Printf("template parse error: %v", err)
+		log.Printf("template parse error (%s): %v", page, err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(status)
 	if err := tmpl.Execute(w, data); err != nil {
-		log.Printf("template execute error: %v", err)
+		log.Printf("template execute error (%s): %v", page, err)
 	}
 }
 
@@ -100,12 +104,12 @@ func renderPage(w http.ResponseWriter, r *http.Request, status int, page string,
 		"templates/pages/"+page,
 	)
 	if err != nil {
-		log.Printf("template parse error: %v", err)
+		log.Printf("template parse error (%s): %v", page, err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 	w.WriteHeader(status)
 	if err := tmpl.Execute(w, data); err != nil {
-		log.Printf("template execute error: %v", err)
+		log.Printf("template execute error (%s): %v", page, err)
 	}
 }

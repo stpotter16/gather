@@ -215,6 +215,18 @@ func (s Store) GetEventDetail(ctx context.Context, eventID int) (store.EventDeta
 	return d, nil
 }
 
+func (s Store) GetEventCreatedBy(ctx context.Context, eventID int) (int, error) {
+	var createdBy int
+	err := s.pool.QueryRow(ctx, `SELECT created_by FROM events WHERE id = $1`, eventID).Scan(&createdBy)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, store.ErrNotFound
+	}
+	if err != nil {
+		return 0, fmt.Errorf("getting event creator: %w", err)
+	}
+	return createdBy, nil
+}
+
 func (s Store) UpdateEvent(ctx context.Context, eventID int, name, location, description string, startDate, endDate time.Time) error {
 	var desc *string
 	if description != "" {
@@ -243,14 +255,28 @@ func (s Store) IsEventMember(ctx context.Context, eventID, userID int) (bool, er
 }
 
 func (s Store) LeaveEvent(ctx context.Context, eventID, userID int) error {
-	_, err := s.pool.Exec(ctx,
-		`DELETE FROM event_members WHERE event_id = $1 AND user_id = $2`,
-		eventID, userID,
-	)
+	tx, err := s.pool.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("leaving event: %w", err)
+		return fmt.Errorf("beginning transaction: %w", err)
 	}
-	return nil
+	defer tx.Rollback(ctx)
+
+	stmts := []struct {
+		sql  string
+		args [2]int
+	}{
+		{`DELETE FROM itineraries WHERE event_id = $1 AND user_id = $2`, [2]int{eventID, userID}},
+		{`DELETE FROM food_restrictions WHERE event_id = $1 AND user_id = $2`, [2]int{eventID, userID}},
+		{`DELETE FROM meal_assignments WHERE user_id = $1 AND meal_id IN (SELECT id FROM meals WHERE event_id = $2)`, [2]int{userID, eventID}},
+		{`DELETE FROM event_members WHERE event_id = $1 AND user_id = $2`, [2]int{eventID, userID}},
+	}
+	for _, s := range stmts {
+		if _, err := tx.Exec(ctx, s.sql, s.args[0], s.args[1]); err != nil {
+			return fmt.Errorf("leave event cleanup: %w", err)
+		}
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (s Store) UpdateMemberStatus(ctx context.Context, eventID, userID int, status string) error {

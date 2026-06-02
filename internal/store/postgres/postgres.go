@@ -76,33 +76,32 @@ func (s Store) RunMigrations(ctx context.Context) error {
 		if currentVersion >= m.version {
 			continue
 		}
-
-		migCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
-		defer cancel()
-
-		tx, err := s.pool.Begin(migCtx)
-		if err != nil {
-			return fmt.Errorf("beginning migration %d transaction: %w", m.version, err)
+		if err := s.applyMigration(ctx, m); err != nil {
+			return fmt.Errorf("migration %d: %w", m.version, err)
 		}
-
-		if _, err := tx.Exec(migCtx, m.sql); err != nil {
-			tx.Rollback(migCtx)
-			return fmt.Errorf("executing migration %d: %w", m.version, err)
-		}
-
-		if _, err := tx.Exec(migCtx, `INSERT INTO schema_migrations (version) VALUES ($1)`, m.version); err != nil {
-			tx.Rollback(migCtx)
-			return fmt.Errorf("recording migration %d: %w", m.version, err)
-		}
-
-		if err := tx.Commit(migCtx); err != nil {
-			return fmt.Errorf("committing migration %d: %w", m.version, err)
-		}
-
 		log.Printf("Applied migration %d", m.version)
 	}
 
 	return nil
+}
+
+func (s Store) applyMigration(ctx context.Context, m migration) error {
+	migCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	tx, err := s.pool.Begin(migCtx)
+	if err != nil {
+		return fmt.Errorf("beginning transaction: %w", err)
+	}
+	defer tx.Rollback(migCtx)
+
+	if _, err := tx.Exec(migCtx, m.sql); err != nil {
+		return fmt.Errorf("executing sql: %w", err)
+	}
+	if _, err := tx.Exec(migCtx, `INSERT INTO schema_migrations (version) VALUES ($1)`, m.version); err != nil {
+		return fmt.Errorf("recording version: %w", err)
+	}
+	return tx.Commit(migCtx)
 }
 
 type migration struct {

@@ -174,6 +174,7 @@ type Store interface {
 	AddDish(ctx context.Context, mealID int, name string) (int, error)
 	AddGrocery(ctx context.Context, eventID int, name, category string) (int, error)
 	ToggleGrocery(ctx context.Context, groceryID, eventID int) error
+	GetEventCreatedBy(ctx context.Context, eventID int) (int, error)
 	UpdateEvent(ctx context.Context, eventID int, name, location, description string, startDate, endDate time.Time) error
 	UpdatePassword(ctx context.Context, userID int, hash string) error
 	GetActivities(ctx context.Context, eventID, userID int) ([]Activity, error)

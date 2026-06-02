@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/stpotter16/gather/internal/handlers/middleware"
 )
 
 func (s *Server) invitePost(w http.ResponseWriter, r *http.Request) {
@@ -13,9 +12,8 @@ func (s *Server) invitePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), id, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	user, ok := s.requireMember(w, r, id)
+	if !ok {
 		return
 	}
 

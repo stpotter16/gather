@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/stpotter16/gather/internal/handlers/middleware"
 )
 
 func (s *Server) foodRestrictionUpsertPost(w http.ResponseWriter, r *http.Request) {
@@ -16,9 +14,8 @@ func (s *Server) foodRestrictionUpsertPost(w http.ResponseWriter, r *http.Reques
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), id, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	user, ok := s.requireMember(w, r, id)
+	if !ok {
 		return
 	}
 
@@ -48,9 +45,7 @@ func (s *Server) mealCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), id, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, id); !ok {
 		return
 	}
 
@@ -90,14 +85,12 @@ func (s *Server) dishCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
 
-	mealID, err := strconv.Atoi(r.PathValue("mealID"))
-	if err != nil || mealID <= 0 {
+	mealID, ok := parsePathInt(r, "mealID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -132,9 +125,7 @@ func (s *Server) groceryCreatePost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), id, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, id); !ok {
 		return
 	}
 
@@ -173,13 +164,11 @@ func (s *Server) mealDeleteDelete(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
-	mealID, err := strconv.Atoi(r.PathValue("mealID"))
-	if err != nil || mealID <= 0 {
+	mealID, ok := parsePathInt(r, "mealID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -196,18 +185,16 @@ func (s *Server) dishDeleteDelete(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
-	mealID, err := strconv.Atoi(r.PathValue("mealID"))
-	if err != nil || mealID <= 0 {
+	mealID, ok := parsePathInt(r, "mealID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-	dishID, err := strconv.Atoi(r.PathValue("dishID"))
-	if err != nil || dishID <= 0 {
+	dishID, ok := parsePathInt(r, "dishID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -224,13 +211,11 @@ func (s *Server) groceryDeleteDelete(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
-	groceryID, err := strconv.Atoi(r.PathValue("groceryID"))
-	if err != nil || groceryID <= 0 {
+	groceryID, ok := parsePathInt(r, "groceryID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -247,14 +232,12 @@ func (s *Server) cookAssignPost(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
 
-	mealID, err := strconv.Atoi(r.PathValue("mealID"))
-	if err != nil || mealID <= 0 {
+	mealID, ok := parsePathInt(r, "mealID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -284,19 +267,17 @@ func (s *Server) cookRemoveDelete(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	user, _ := middleware.UserFromContext(r.Context())
-	if ok, _ := s.store.IsEventMember(r.Context(), eventID, user.ID); !ok {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, eventID); !ok {
 		return
 	}
 
-	mealID, err := strconv.Atoi(r.PathValue("mealID"))
-	if err != nil || mealID <= 0 {
+	mealID, ok := parsePathInt(r, "mealID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
-	cookUserID, err := strconv.Atoi(r.PathValue("userID"))
-	if err != nil || cookUserID <= 0 {
+	cookUserID, ok := parsePathInt(r, "userID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}
@@ -315,8 +296,8 @@ func (s *Server) groceryTogglePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groceryID, err := strconv.Atoi(r.PathValue("groceryID"))
-	if err != nil || groceryID <= 0 {
+	groceryID, ok := parsePathInt(r, "groceryID")
+	if !ok {
 		http.NotFound(w, r)
 		return
 	}

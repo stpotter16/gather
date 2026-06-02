@@ -49,8 +49,11 @@ func run(
 		port = "8080"
 	}
 	server := &http.Server{
-		Addr:    ":" + port,
-		Handler: handler,
+		Addr:         ":" + port,
+		Handler:      handler,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
 	}
 
 	go func() {

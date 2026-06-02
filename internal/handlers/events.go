@@ -64,10 +64,7 @@ func (s *Server) editEventPut(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, _ := middleware.UserFromContext(r.Context())
-	member, err := s.store.IsEventMember(r.Context(), id, user.ID)
-	if err != nil || !member {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	if _, ok := s.requireMember(w, r, id); !ok {
 		return
 	}
 

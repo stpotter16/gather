@@ -67,41 +67,7 @@ The core app is built and functional.
 
 ## Code quality backlog
 
-Findings from a full codebase sweep. Ordered roughly by impact.
-
-### Error handling
-
-**`IsEventMember` errors are silently discarded** — every handler that guards on membership uses `if ok, _ := s.store.IsEventMember(...)`. A DB error returns `false`, sending a 403 instead of a 500. Pattern should be `ok, err := ...; if err != nil { 500 } else if !ok { 403 }`. Affects `invite.go`, `meal_plan.go`, `activities.go`.
-
-**`eventLeaveDelete` calls `GetEventDetail` just to check the host** — loads all members, itineraries, and accommodations (3 queries) only to read `created_by`. Should use a lightweight `SELECT created_by FROM events WHERE id = $1` instead.
-
-**`json.Marshal` errors silently discarded** — `buildGoingMembersJSON`, `buildItineraryJSON`, and `cookIDsJSON` all use `b, _ := json.Marshal(...)`. These structs shouldn't fail to marshal in practice, but silent discards are worth fixing.
-
-### Logging
-
-**`LoggingWrapper` doesn't capture the HTTP status code** — logs `METHOD PATH duration` with no status. A small `responseWriter` wrapper that intercepts `WriteHeader` would let log lines show `200`, `404`, `500`, etc. Without this you can't spot error rates in logs.
-
-**Template errors don't include the page name** — `log.Printf("template parse error: %v", err)` gives no context about which template failed.
-
-### HTTP server
-
-**No timeouts on `http.Server`** — `cmd/server/main.go` creates the server with no `ReadTimeout`, `WriteTimeout`, or `IdleTimeout`. Fly.io's proxy adds some protection, but these are standard Go best practice. Suggested defaults: `ReadTimeout: 5s`, `WriteTimeout: 10s`, `IdleTimeout: 120s`.
-
-### Code structure
-
-**Path integer parsing is duplicated 10+ times** — `strconv.Atoi(r.PathValue("mealID"))` followed by `if err != nil || id <= 0` appears in nearly every handler. `parseEventID` already establishes the pattern; a generalised `parsePathInt(r, "key") (int, bool)` helper would eliminate the repetition. `parseEventID` itself lives in `event_detail.go` but is used across all handler files — belongs in a shared `helpers.go`.
-
-**Formatting helpers are scattered** — `formatDateRange` is in `index.go`, `invitedAgo` and `daysLabel` are in `event_detail.go`. A single `format.go` would be cleaner.
-
 **`event_detail.html` is ~1400 lines** — Go templates support `{{ template "name" . }}` composition. Splitting into partials (`_meal_plan.html`, `_activities.html`, `_grocery_panel.html`, `_modals.html`, etc.) would make the file navigable. `views.go`'s `renderPage` would need to accept additional template files.
-
-### Data integrity
-
-**`LeaveEvent` leaves behind user-scoped data** — when a user leaves, their `itineraries`, `food_restrictions`, and `meal_assignments` rows remain. This may be intentional (the group keeps the context) but it's currently an implicit decision. Document or enforce it explicitly.
-
-**`defer cancel()` inside the migration loop** in `postgres.go` — defers accumulate until the function returns, not per-iteration. In practice harmless here (all are no-ops after their timeout fires), but the pattern should be `cancel()` called explicitly after the transaction commits or rolls back.
-
-### Security / CSP
 
 **`style-src 'unsafe-inline'` in CSP** — Tailwind compiles to an external stylesheet, so inline styles aren't needed for that. The `style="background-color: ..."` element attributes are the only thing requiring it. Could be removed by moving dynamic colors to CSS custom properties or a data-attribute approach, but this is low priority.
 

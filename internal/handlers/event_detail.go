@@ -3,10 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"html/template"
+	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/stpotter16/gather/internal/handlers/middleware"
@@ -266,25 +265,22 @@ func (s *Server) eventLeaveDelete(w http.ResponseWriter, r *http.Request) {
 
 	user, _ := middleware.UserFromContext(r.Context())
 
-	detail, err := s.store.GetEventDetail(r.Context(), id)
+	createdBy, err := s.store.GetEventCreatedBy(r.Context(), id)
 	if err != nil {
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		if errors.Is(err, store.ErrNotFound) {
+			http.NotFound(w, r)
+			return
+		}
+		http.Error(w, "Something went wrong.", http.StatusInternalServerError)
 		return
 	}
-	if detail.CreatedBy == user.ID {
+	if createdBy == user.ID {
 		http.Error(w, "The host cannot leave their own event.", http.StatusForbidden)
 		return
 	}
 
-	isMember := false
-	for _, m := range detail.Members {
-		if m.UserID == user.ID {
-			isMember = true
-			break
-		}
-	}
-	if !isMember {
-		http.Error(w, "Forbidden", http.StatusForbidden)
+	user, ok = s.requireMember(w, r, id)
+	if !ok {
 		return
 	}
 
@@ -345,41 +341,6 @@ func (s *Server) itineraryUpsertPut(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func parseEventID(r *http.Request) (int, bool) {
-	id, err := strconv.Atoi(r.PathValue("id"))
-	if err != nil || id <= 0 {
-		return 0, false
-	}
-	return id, true
-}
-
-func memberDateSummary(m store.EventDetailMember, e store.Event) string {
-	if m.ArrivalDate == nil && m.DepartureDate == nil {
-		return ""
-	}
-	arrival := e.StartDate
-	departure := e.EndDate
-	if m.ArrivalDate != nil {
-		arrival = *m.ArrivalDate
-	}
-	if m.DepartureDate != nil {
-		departure = *m.DepartureDate
-	}
-	return formatDateRange(arrival, departure)
-}
-
-func invitedAgo(t time.Time) string {
-	days := int(time.Since(t).Hours() / 24)
-	switch {
-	case days == 0:
-		return "Invited today"
-	case days == 1:
-		return "Invited yesterday"
-	default:
-		return fmt.Sprintf("Invited %d days ago", days)
-	}
-}
-
 func buildGoingMembersJSON(going []memberView) template.JS {
 	type member struct {
 		ID          int    `json:"id"`
@@ -390,7 +351,11 @@ func buildGoingMembersJSON(going []memberView) template.JS {
 	for i, m := range going {
 		members[i] = member{ID: m.UserID, Name: m.Name, AvatarColor: m.AvatarColor}
 	}
-	b, _ := json.Marshal(members)
+	b, err := json.Marshal(members)
+	if err != nil {
+		log.Printf("buildGoingMembersJSON marshal error: %v", err)
+		return template.JS("[]")
+	}
 	return template.JS(b)
 }
 
@@ -450,6 +415,10 @@ func buildItineraryJSON(m store.EventDetailMember) template.JS {
 		DepartureDetails:      m.DepartureDetails,
 	}
 
-	b, _ := json.Marshal(d)
+	b, err := json.Marshal(d)
+	if err != nil {
+		log.Printf("buildItineraryJSON marshal error: %v", err)
+		return template.JS("{}")
+	}
 	return template.JS(b)
 }
