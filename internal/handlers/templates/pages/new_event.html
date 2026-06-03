@@ -76,6 +76,15 @@
 
 </main>
 <script nonce="{{ .CspNonce }}">
+  var startDateInput = document.getElementById("start_date");
+  var endDateInput   = document.getElementById("end_date");
+  startDateInput.addEventListener("change", function () {
+    endDateInput.min = startDateInput.value;
+    if (endDateInput.value && endDateInput.value < startDateInput.value) {
+      endDateInput.value = startDateInput.value;
+    }
+  });
+
   document.getElementById("new-event-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const errorEl = document.getElementById("form-error");

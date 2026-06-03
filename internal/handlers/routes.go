@@ -22,6 +22,8 @@ func (s *Server) addRoutes(mux *http.ServeMux) {
 	protected.HandleFunc("GET /events/{id}", s.eventDetailGet)
 	protected.HandleFunc("GET /events/{id}/edit", s.editEventGet)
 	protected.HandleFunc("PUT /events/{id}", s.editEventPut)
+	protected.HandleFunc("POST /events/{id}/accommodations", s.accommodationCreatePost)
+	protected.HandleFunc("DELETE /events/{id}/accommodations/{accommodationID}", s.accommodationDeleteDelete)
 	protected.HandleFunc("POST /events/{id}/rsvp", s.eventRSVPPost)
 	protected.HandleFunc("PUT /events/{id}/itinerary", s.itineraryUpsertPut)
 	protected.HandleFunc("POST /events/{id}/food-restrictions", s.foodRestrictionUpsertPost)
