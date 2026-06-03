@@ -57,8 +57,16 @@ dev-scripts/                    shell scripts called by Makefile
 
 The core app is built and functional.
 
+### Bugs (alpha feedback)
+
+**Accommodations "Add" button does nothing** — the button renders in the Overview tab but has no handler wired up and no backend route. Needs a modal (label + URL fields), `POST /events/{id}/accommodations` → insert into `accommodations`, and a `DELETE /events/{id}/accommodations/{accommodationID}` to remove. Store method: `AddAccommodation(ctx, eventID, userID int, label, url string) (int, error)`.
+
+**End date can be set before start date on the client** — the server validates and rejects this (422), but the date inputs have no client-side constraint. Add `min` attribute to `end_date` input that updates when `start_date` changes, so the invalid state is prevented rather than just caught.
+
 ### Nice-to-have (app works without these)
 
+- **Show/hide password toggle on login** — an eye icon on the password field to toggle `type="password"` / `type="text"`. Pure client-side, no backend change.
+- **Location typeahead on create/edit event** — suggestions as the user types in the location field. Would need a places API (e.g. Google Places Autocomplete or Mapbox) or a simpler static approach.
 - **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
 
 ### Out of scope for now
