@@ -59,7 +59,6 @@ The core app is built and functional.
 
 ### Nice-to-have (app works without these)
 
-- **Show/hide password toggle on login** — an eye icon on the password field to toggle `type="password"` / `type="text"`. Pure client-side, no backend change.
 - **Location typeahead on create/edit event** — suggestions as the user types in the location field. Would need a places API (e.g. Google Places Autocomplete or Mapbox) or a simpler static approach.
 - **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
 
