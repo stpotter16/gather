@@ -59,12 +59,18 @@ The core app is built and functional.
 
 ### Nice-to-have (app works without these)
 
-- **Location typeahead on create/edit event** — suggestions as the user types in the location field. Would need a places API (e.g. Google Places Autocomplete or Mapbox) or a simpler static approach.
-- **Nudge pending invitees** — button renders but does nothing; would send a reminder (no email system yet, so likely out of scope until notifications are added)
+**Location typeahead on create/edit event** — suggestions as the user types in the location field on the create/edit event forms. Low priority given the field is filled once per event. Options:
+- **Mapbox Geocoding** (recommended) — generous free tier (100k req/month), simple REST API, public token can be scoped to the app's domain so no backend proxy is needed. A debounced `input` listener fetches suggestions and renders a small dropdown; no schema changes or new routes required.
+- **Google Places Autocomplete** — most complete results but billing starts from day one.
 
-### Out of scope for now
-- Flight number lookup via AviationStack (or similar) API — fields exist in the itinerary form, auto-fill is deferred
-- Email/push notifications for invites and nudges
+**Flight number lookup** — the itinerary form already has fields for flight number, airline, origin, destination, and times. A "Look up" button would auto-fill them from a flight data API. Implementation: a new `GET /api/flights?number=AA123&date=2026-07-04` route that proxies to the API (keeps the key server-side), returning route + times for the frontend to populate. Options:
+- **AviationStack** (already referenced in codebase) — free tier is 100 req/month but covers real-time flights only, not future/scheduled. Accessing scheduled future flights requires the $9.99/month plan.
+- **AeroDataBox** (via RapidAPI) — 100 free calls/day, covers scheduled flights.
+
+**Email notifications** — would unlock invite notifications (send when someone is added to an event) and the nudge button (reminder to pending invitees). Push notifications are out of scope — they require a service worker/PWA setup for marginal gain. Email only. Options:
+- **Resend** (recommended) — 3k emails/month free, clean REST API, good Go support. Add `RESEND_API_KEY` secret to both Fly apps, add a thin `internal/email/` package. Plain text emails are fine for a family app.
+- **Postmark** — excellent deliverability, 100 free/month (likely sufficient).
+- **SendGrid** — 100/day free tier.
 
 ## Code quality backlog
 
