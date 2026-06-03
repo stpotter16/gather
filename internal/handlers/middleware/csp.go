@@ -29,7 +29,7 @@ func CspMiddleware(next http.Handler) http.Handler {
 		ctx := context.WithValue(r.Context(), nonceKey, nonce)
 
 		csp := fmt.Sprintf(
-			"default-src 'self'; script-src 'self' 'nonce-%s'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'",
+			"default-src 'self'; script-src 'self' 'nonce-%s'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://api.mapbox.com",
 			nonce,
 		)
 		w.Header().Set("Content-Security-Policy", csp)

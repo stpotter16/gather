@@ -9,12 +9,13 @@ import (
 )
 
 type Server struct {
-	store    store.Store
-	sessions *sessions.Manager
+	store        store.Store
+	sessions     *sessions.Manager
+	mapboxToken  string
 }
 
-func NewServer(st store.Store, sm *sessions.Manager) http.Handler {
-	s := &Server{store: st, sessions: sm}
+func NewServer(st store.Store, sm *sessions.Manager, mapboxToken string) http.Handler {
+	s := &Server{store: st, sessions: sm, mapboxToken: mapboxToken}
 	mux := http.NewServeMux()
 	s.addRoutes(mux)
 	var handler http.Handler = mux

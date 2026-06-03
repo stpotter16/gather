@@ -18,7 +18,7 @@ type editEventProps struct {
 }
 
 func (s *Server) newEventGet(w http.ResponseWriter, r *http.Request) {
-	renderPage(w, r, http.StatusOK, "new_event.html", newBaseProps(r))
+	renderPage(w, r, http.StatusOK, "new_event.html", s.newBaseProps(r))
 }
 
 func (s *Server) editEventGet(w http.ResponseWriter, r *http.Request) {
@@ -52,7 +52,7 @@ func (s *Server) editEventGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	renderPage(w, r, http.StatusOK, "edit_event.html", editEventProps{
-		baseProps: newBaseProps(r),
+		baseProps: s.newBaseProps(r),
 		Event:     detail,
 	})
 }

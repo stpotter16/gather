@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Server) loginGet(w http.ResponseWriter, r *http.Request) {
-	renderAuthPage(w, r, http.StatusOK, "login.html", newBaseProps(r))
+	renderAuthPage(w, r, http.StatusOK, "login.html", s.newBaseProps(r))
 }
 
 func (s *Server) loginPost(w http.ResponseWriter, r *http.Request) {
@@ -49,7 +49,7 @@ func (s *Server) logoutPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) accountGet(w http.ResponseWriter, r *http.Request) {
-	renderPage(w, r, http.StatusOK, "account.html", newBaseProps(r))
+	renderPage(w, r, http.StatusOK, "account.html", s.newBaseProps(r))
 }
 
 func (s *Server) changePasswordPost(w http.ResponseWriter, r *http.Request) {

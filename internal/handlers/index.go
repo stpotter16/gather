@@ -21,7 +21,7 @@ type indexProps struct {
 }
 
 func (s *Server) indexGet(w http.ResponseWriter, r *http.Request) {
-	base := newBaseProps(r)
+	base := s.newBaseProps(r)
 	events, err := s.store.GetEventsForUser(r.Context(), base.User.ID)
 	if err != nil {
 		http.Error(w, "Internal server error", http.StatusInternalServerError)

@@ -68,14 +68,15 @@ var templateFuncs = template.FuncMap{
 }
 
 type baseProps struct {
-	CspNonce string
-	User     store.User
+	CspNonce    string
+	User        store.User
+	MapboxToken string
 }
 
-func newBaseProps(r *http.Request) baseProps {
+func (s *Server) newBaseProps(r *http.Request) baseProps {
 	nonce, _ := middleware.NonceFromContext(r.Context())
 	user, _ := middleware.UserFromContext(r.Context())
-	return baseProps{CspNonce: nonce, User: user}
+	return baseProps{CspNonce: nonce, User: user, MapboxToken: s.mapboxToken}
 }
 
 // renderAuthPage renders a page using only base.html (no app nav).

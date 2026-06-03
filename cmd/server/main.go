@@ -42,7 +42,7 @@ func run(
 		return fmt.Errorf("initialising sessions: %w", err)
 	}
 
-	handler := handlers.NewServer(store, sm)
+	handler := handlers.NewServer(store, sm, getenv("MAPBOX_PUBLIC_TOKEN"))
 
 	port := getenv("PORT")
 	if port == "" {

@@ -42,11 +42,15 @@
 
     <div class="space-y-1.5">
       <label class="text-sm font-medium text-stone-700" for="location">Location</label>
-      <input
-        id="location" name="location" type="text"
-        value="{{ .Event.Location }}"
-        class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-      />
+      <div class="relative">
+        <input
+          id="location" name="location" type="text"
+          value="{{ .Event.Location }}"
+          autocomplete="off"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-stone-300 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+        />
+        <ul id="location-suggestions" class="hidden absolute z-10 w-full mt-1 bg-white border border-stone-200 rounded-lg shadow-lg overflow-hidden"></ul>
+      </div>
     </div>
 
     <div class="space-y-1.5">
@@ -86,6 +90,41 @@
       endDateInput.value = startDateInput.value;
     }
   });
+
+  (function () {
+    var token = "{{ .MapboxToken }}";
+    if (!token) return;
+    var input  = document.getElementById("location");
+    var list   = document.getElementById("location-suggestions");
+    var timer;
+    input.addEventListener("input", function () {
+      clearTimeout(timer);
+      var q = input.value.trim();
+      if (q.length < 2) { list.classList.add("hidden"); return; }
+      timer = setTimeout(async function () {
+        var url = "https://api.mapbox.com/geocoding/v5/mapbox.places/" + encodeURIComponent(q) +
+          ".json?access_token=" + token + "&types=place,locality,region&limit=5";
+        var resp = await fetch(url);
+        if (!resp.ok) return;
+        var data = await resp.json();
+        list.innerHTML = "";
+        if (!data.features.length) { list.classList.add("hidden"); return; }
+        data.features.forEach(function (f) {
+          var li = document.createElement("li");
+          li.className = "px-3.5 py-2.5 text-sm text-stone-700 hover:bg-stone-50 cursor-pointer";
+          li.textContent = f.place_name;
+          li.addEventListener("mousedown", function (e) {
+            e.preventDefault();
+            input.value = f.place_name;
+            list.classList.add("hidden");
+          });
+          list.appendChild(li);
+        });
+        list.classList.remove("hidden");
+      }, 300);
+    });
+    input.addEventListener("blur", function () { setTimeout(function () { list.classList.add("hidden"); }, 150); });
+  })();
 
   document.getElementById("edit-event-form").addEventListener("submit", async (e) => {
     e.preventDefault();

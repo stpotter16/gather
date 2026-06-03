@@ -223,7 +223,7 @@ func (s *Server) eventDetailGet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	props := eventDetailProps{
-		baseProps:            newBaseProps(r),
+		baseProps:            s.newBaseProps(r),
 		Detail:               detail,
 		DateRange:            formatDateRange(detail.StartDate, detail.EndDate),
 		DayCount:             duration,
